@@ -36,7 +36,7 @@
                 <div class="mb-3">
                     <label for="exampleInputEmail1" class="form-label">Email address</label>
                     <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"
-                        name="email">
+                        name="email" value="{{emailInput}}">
                 </div>
                 <div class="mb-3">
                     <label for="exampleInputPassword1" class="form-label">Password</label>
@@ -44,6 +44,18 @@
                 </div>
                 <button type="submit" class="btn btn-primary">Submit</button>
             </form>
+            {% if errMessage %}
+            <div id="errToast" class="toast align-items-center text-bg-danger border-0 show" role="alert"
+                aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body" style="display: flex; word-wrap: break-word;">
+                        {{errMessage}}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
+                </div>
+            </div>
+            {% endif %}
 
         </div>
     </div>
