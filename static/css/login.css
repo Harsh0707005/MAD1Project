@@ -30,4 +30,5 @@ nav ul{
     align-items: center;
     height: 100%;
     width: 100%;
+    gap: 40px;
 }
