@@ -34,13 +34,13 @@
 
         <div id="formContainer">
 
-            <h4>Register as {{role}}</h4>
+            <h4>{{role}} Registration</h4>
 
             <form method="POST">
-                <div class="mb-3">
-                    <label for="inputEmail1" class="form-label">Email address</label>
-                    <input type="email" class="form-control" id="inputEmail1" aria-describedby="emailHelp" name="email" value="{{emailInput}}">
-                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon1">@</span>
+                    <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1" value="{{usernameInput}}" name="username">
+                  </div>
                 <div class="mb-3">
                     <label for="inputPassword" class="form-label">Password</label>
                     <input type="password" class="form-control" id="inputPassword" name="password">
