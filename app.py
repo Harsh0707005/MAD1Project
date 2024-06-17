@@ -34,8 +34,10 @@ def login():
                     return render_template('login.html', role="User" , errMessage = "Login as admin!")
                 elif password == db_res[1]:
                     sessionId = generateRandomNo(30)
+                    cursor.execute('UPDATE users SET sessionID=? WHERE username=?', (sessionId, username))
+                    users.commit()
                     response = make_response(render_template('login.html', role="User", errMessage = "Login Successful!"))
-                    response.set_cookie("sessionId", sessionId)
+                    response.set_cookie("sessionId", sessionId, max_age=(60*60*24*7))
                     return response
                 else:
                     return render_template('login.html', role="User" , usernameInput = username, errMessage = "Invalid Password!")
