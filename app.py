@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, make_response
+from flask import Flask, render_template, request, url_for, make_response, redirect
 import sqlite3
 import string
 import random
@@ -15,6 +15,17 @@ def generateRandomNo(n):
 @app.route("/", methods=["GET", "POST"])
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    if request.method == "GET" and request.cookies.get("sessionId"):
+        with sqlite3.connect('users.db') as users:
+            cursor = users.cursor()
+            cursor.execute('SELECT * FROM users WHERE sessionId=?', (request.cookies.get("sessionId"),))
+
+            if cursor.fetchone():
+                return redirect('/dashboard')
+            else:
+                response = make_response(render_template('login.html', role="User"))
+                response.set_cookie("sessionId", "", max_age=0)
+                return response
     if request.method == "POST":
         username = request.form['username'].strip()
         password = request.form['password'].strip()
@@ -36,7 +47,7 @@ def login():
                     sessionId = generateRandomNo(30)
                     cursor.execute('UPDATE users SET sessionID=? WHERE username=?', (sessionId, username))
                     users.commit()
-                    response = make_response(render_template('login.html', role="User", errMessage = "Login Successful!"))
+                    response = make_response(redirect("/dashboard"))
                     response.set_cookie("sessionId", sessionId, max_age=(60*60*24*7))
                     return response
                 else:
@@ -134,6 +145,21 @@ def registerInfluencer():
                 return cursor.execute("SELECT * FROM users").fetchall()
 
     return render_template("register.html", role="Influencer")
+
+@app.route("/dashboard", methods=['GET'])
+def dashboard():
+    if request.cookies.get("sessionId") == None or request.cookies.get("sessionId") == "":
+        return redirect("/login")
+    else:
+        with sqlite3.connect('users.db') as users:
+            cursor = users.cursor()
+            cursor.execute('SELECT * FROM users WHERE sessionId=?', (request.cookies.get("sessionId"),))
+
+            if cursor.fetchone():
+                return "Dashboard"
+            else:
+                response = make_response(redirect("/login"))
+                return response
 
 
 if __name__ == "__main__":
