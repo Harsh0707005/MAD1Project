@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
-    <link rel="stylesheet" href="{{url_for('static', filename='css/dashboard.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/profile.css')}}">
 </head>
+
 <body>
     <nav>
         <span>{{role}}'s Dashboard</span>
@@ -33,5 +35,36 @@
             </li>
         </ul>
     </nav>
+
+    <div id="profileContainer">
+        {% if role == 'Influencer' %}
+        <div id="left">
+            <img src="{{url_for('static', filename='assets/placeholderProfilePic.png')}}" alt="">
+            <span>Rating: {{rating}}</span>
+            <span>Earnings this month: {{earnings}}</span>
+        </div>
+        {% endif %}
+
+        <div id="right">
+            <span>Welcome {{username}}</span>
+            <div id="active">
+                Active Campaigns:
+                <div class="campaigns">
+
+                    {% for campaign in active_campaigns %}
+                    <div class="campaign">
+                        <div>
+                            <span>{{campaign[0]}}</span>
+                        </div>
+                        <div>
+                            <span>View</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
+
 </html>

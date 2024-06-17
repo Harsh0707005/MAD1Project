@@ -166,11 +166,12 @@ def dashboard():
             
     with sqlite3.connect('users.db') as users:
         cursor = users.cursor()
-        cursor.execute('SELECT role FROM users WHERE sessionId=?', (sessionId,))
+        cursor.execute('SELECT * FROM users WHERE sessionId=?', (sessionId,))
         db_result = cursor.fetchone()
-        user_role = db_result[0].title()
+        user_role = db_result[2].title()
+        db_username = db_result[0]
     
-    return render_template('dashboard/profile.html', role=user_role)
+    return render_template('dashboard/profile.html', role=user_role, username=db_username, active_campaigns=[["test1"], ["test2"], ["test3"]])
 
 
 if __name__ == "__main__":
