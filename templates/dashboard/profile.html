@@ -63,6 +63,22 @@
                     {% endfor %}
                 </div>
             </div>
+            <div id="requests">
+                New Requests:
+                <div class="campaigns">
+
+                    {% for campaign in requests_campaigns %}
+                    <div class="campaign">
+                        <div>
+                            <span>{{campaign[0]}}</span>
+                        </div>
+                        <div>
+                            <span>View</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
     </div>
 </body>

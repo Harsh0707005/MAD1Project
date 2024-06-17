@@ -6,7 +6,11 @@ import random
 app = Flask(__name__)
 
 connect = sqlite3.connect('users.db')
+connect.execute('PRAGMA foreign_keys = ON;')
 connect.execute('CREATE TABLE IF NOT EXISTS users (username TEXT NOT NULL PRIMARY KEY, password TEXT NOT NULL, role TEXT NOT NULL, sessionId TEXT)')
+connect.execute('CREATE TABLE IF NOT EXISTS influencers (username TEXT NOT NULL, presence TEXT, profic_pic TEXT NOT NULL, requests TEXT, total_earnings NUMERIC, rating INTEGER, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE)')
+connect.execute('CREATE TABLE IF NOT EXISTS sponsors (username TEXT NOT NULL, industry TEXT, requests TEXT, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE)')
+connect.execute('CREATE TABLE IF NOT EXISTS campaigns (id INTEGER NOT NULL PRIMARY KEY, title TEXT, description TEXT, image TEXT, niche TEXT, influencer TEXT, sponsor TEXT, budget NUMERIC, date TEXT)')
 
 # generating random session id
 def generateRandomNo(n):
@@ -114,6 +118,8 @@ def registerSponsor():
             else:
                 cursor.execute('INSERT INTO users(username, password, role) VALUES(?, ?, ?)', (username, password, role))
                 users.commit()
+                cursor.execute('INSERT INTO sponsors(username, industry, requests) VALUES(?, ?, ?)', (username, "", ""))
+                users.commit()
 
                 return cursor.execute("SELECT * FROM users").fetchall()
 
@@ -143,6 +149,7 @@ def registerInfluencer():
             else:
                 cursor.execute('INSERT INTO users(username, password, role) VALUES(?, ?, ?)', (username, password, role))
                 users.commit()
+                cursor.execute('INSERT INTO influencers(username, presence, profic_pic, requests, total_earnings, rating) VALUES(?, ?, ?, ?, ?, ?)', (username, "", "", "", 0, 0))
                 return cursor.execute("SELECT * FROM users").fetchall()
 
     return render_template("register.html", role="Influencer")
@@ -171,7 +178,7 @@ def dashboard():
         user_role = db_result[2].title()
         db_username = db_result[0]
     
-    return render_template('dashboard/profile.html', role=user_role, username=db_username, active_campaigns=[["test1"], ["test2"], ["test3"]])
+    return render_template('dashboard/profile.html', role=user_role, username=db_username, active_campaigns=[["test1"], ["test2"], ["test3"]], requests_campaigns=[["test1"], ["test2"], ["test3"]])
 
 
 if __name__ == "__main__":
