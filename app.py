@@ -172,8 +172,6 @@ def dashboard():
     
     return render_template('dashboard/profile.html', role=user_role)
 
-    # return "hi"
-
 
 if __name__ == "__main__":
     app.run(port=8000, debug=True)
