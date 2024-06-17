@@ -1,10 +1,16 @@
-from flask import Flask, render_template, request, url_for
+from flask import Flask, render_template, request, url_for, make_response
 import sqlite3
+import string
+import random
 
 app = Flask(__name__)
 
 connect = sqlite3.connect('users.db')
 connect.execute('CREATE TABLE IF NOT EXISTS users (username TEXT NOT NULL PRIMARY KEY, password TEXT NOT NULL, role TEXT NOT NULL)')
+
+# generating random session id
+def generateRandomNo(n):
+    return "".join(random.choice(string.ascii_letters + string.digits) for _ in range(n))
 
 @app.route("/", methods=["GET", "POST"])
 @app.route("/login", methods=["GET", "POST"])
@@ -27,7 +33,10 @@ def login():
                 if db_res[2] == "admin":
                     return render_template('login.html', role="User" , errMessage = "Login as admin!")
                 elif password == db_res[1]:
-                    return render_template('login.html', role="User" , errMessage = "Login Successful!")
+                    sessionId = generateRandomNo(30)
+                    response = make_response(render_template('login.html', role="User", errMessage = "Login Successful!"))
+                    response.set_cookie("sessionId", sessionId)
+                    return response
                 else:
                     return render_template('login.html', role="User" , usernameInput = username, errMessage = "Invalid Password!")
                 
