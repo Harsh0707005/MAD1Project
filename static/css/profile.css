@@ -1,0 +1,61 @@
+nav {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+ul {
+    list-style-type: none;
+    display: flex;
+    flex-direction: row;
+}
+
+nav ul li {
+    cursor: pointer;
+}
+
+.noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+#left{
+    display: flex;
+    flex-direction: column;
+    width: 30%;
+}
+#left img{
+    width: 200px;
+    border-radius: 50%;
+}
+#profileContainer{
+    display: flex;
+    flex-direction: row;
+}
+#right{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 35px;
+}
+#active{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.campaigns{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.campaign{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 10px;
+}
