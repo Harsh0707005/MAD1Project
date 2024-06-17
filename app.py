@@ -6,7 +6,7 @@ import random
 app = Flask(__name__)
 
 connect = sqlite3.connect('users.db')
-connect.execute('CREATE TABLE IF NOT EXISTS users (username TEXT NOT NULL PRIMARY KEY, password TEXT NOT NULL, role TEXT NOT NULL)')
+connect.execute('CREATE TABLE IF NOT EXISTS users (username TEXT NOT NULL PRIMARY KEY, password TEXT NOT NULL, role TEXT NOT NULL, sessionId TEXT)')
 
 # generating random session id
 def generateRandomNo(n):
@@ -20,8 +20,9 @@ def login():
             cursor = users.cursor()
             cursor.execute('SELECT * FROM users WHERE sessionId=?', (request.cookies.get("sessionId"),))
 
+            # print(cursor.fetchone())
             if cursor.fetchone():
-                return redirect('/dashboard')
+                return redirect("/dashboard")
             else:
                 response = make_response(render_template('login.html', role="User"))
                 response.set_cookie("sessionId", "", max_age=0)
@@ -148,19 +149,30 @@ def registerInfluencer():
 
 @app.route("/dashboard", methods=['GET'])
 def dashboard():
+    sessionId = request.cookies.get("sessionId")
+    print(sessionId)
     # If session id absent or ""
-    if request.cookies.get("sessionId") == None or request.cookies.get("sessionId") == "":
+    if sessionId == None or sessionId == "":
         return redirect("/login")
     else:
         # If session id present
         with sqlite3.connect('users.db') as users:
             cursor = users.cursor()
-            cursor.execute('SELECT * FROM users WHERE sessionId=?', (request.cookies.get("sessionId"),))
-
-            if cursor.fetchone() == []:
+            cursor.execute('SELECT * FROM users WHERE sessionId=?', (sessionId,))
+            db_result = cursor.fetchone()
+            if db_result == [] or db_result == None:
                 response = make_response(redirect("/login"))
                 return response
+            
+    with sqlite3.connect('users.db') as users:
+        cursor = users.cursor()
+        cursor.execute('SELECT role FROM users WHERE sessionId=?', (sessionId,))
+        db_result = cursor.fetchone()
+        user_role = db_result[0].title()
     
+    return render_template('dashboard/profile.html', role=user_role)
+
+    # return "hi"
 
 
 if __name__ == "__main__":
