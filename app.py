@@ -148,18 +148,19 @@ def registerInfluencer():
 
 @app.route("/dashboard", methods=['GET'])
 def dashboard():
+    # If session id absent or ""
     if request.cookies.get("sessionId") == None or request.cookies.get("sessionId") == "":
         return redirect("/login")
     else:
+        # If session id present
         with sqlite3.connect('users.db') as users:
             cursor = users.cursor()
             cursor.execute('SELECT * FROM users WHERE sessionId=?', (request.cookies.get("sessionId"),))
 
-            if cursor.fetchone():
-                return "Dashboard"
-            else:
+            if cursor.fetchone() == []:
                 response = make_response(redirect("/login"))
                 return response
+    
 
 
 if __name__ == "__main__":
