@@ -179,8 +179,6 @@ def dashboard():
         db_result = cursor.fetchone()
         user_role = db_result[2].title()
         db_username = db_result[0]
-
-    print(user_role)
     
     return render_template('dashboard/profile.html', role=user_role, username=db_username, active_campaigns=[["test1"], ["test2"], ["test3"]], requests_campaigns=[["test1"], ["test2"], ["test3"]])
 
