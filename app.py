@@ -159,7 +159,6 @@ def registerInfluencer():
 @app.route("/profile", methods=['GET'])
 def dashboard():
     sessionId = request.cookies.get("sessionId")
-    print(sessionId)
     # If session id absent or ""
     if sessionId == None or sessionId == "":
         return redirect("/login")
@@ -190,6 +189,10 @@ def find():
 def search():
     search_query = json.loads(request.data.decode('utf-8'))['query']
     return json.dumps(search_query)
+
+@app.route("/campaigns", methods=['GET'])
+def campaigns():
+    return render_template('dashboard/campaigns.html', role="Influencer", campaigns=["test1", "test2", "test3"])
 
 @app.route("/logout", methods=['GET'])
 def logout():
