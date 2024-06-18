@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campaigns</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/dashboard/campaigns.css')}}">
+</head>
+
+<body>
+    {% with role = role %}
+    {% include 'navbar.html' %}
+    {% endwith %}
+    <div id="campaignContainer">
+        <div class="campaigns">
+            {% for campaign in campaigns %}
+            <div class="campaign">
+                <span>{{campaign[0]}}</span>
+                <span>View</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div id="addCampaignButtonDiv">
+        <div id="addIconDiv">
+            <img id="addIconImg" src="{{url_for('static', filename='assets/addIcon.svg')}}">
+        </div>
+    </div>
+</body>
+
+</html>
