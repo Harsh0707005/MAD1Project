@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, url_for, make_response, redir
 import sqlite3
 import string
 import random
+import json
 
 app = Flask(__name__)
 
@@ -155,6 +156,7 @@ def registerInfluencer():
     return render_template("register.html", role="Influencer")
 
 @app.route("/dashboard", methods=['GET'])
+@app.route("/profile", methods=['GET'])
 def dashboard():
     sessionId = request.cookies.get("sessionId")
     print(sessionId)
@@ -180,6 +182,14 @@ def dashboard():
     
     return render_template('dashboard/profile.html', role=user_role, username=db_username, active_campaigns=[["test1"], ["test2"], ["test3"]], requests_campaigns=[["test1"], ["test2"], ["test3"]])
 
+@app.route("/find", methods=['GET'])
+def find():
+    return render_template('dashboard/find.html', role="Influencer")
+
+@app.route("/search", methods=['POST'])
+def search():
+    search_query = json.loads(request.data.decode('utf-8'))['query']
+    return json.dumps(search_query)
 
 if __name__ == "__main__":
     app.run(port=8000, debug=True)

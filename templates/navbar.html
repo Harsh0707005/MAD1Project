@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navbar</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/navbar.css')}}">
+</head>
+<body>
+    <nav>
+        <span>{{role}}'s Dashboard</span>
+        <ul>
+            <a href="/profile">
+                <li class="noselect">
+                    Profile
+                </li>
+            </a>
+            <span class="noselect">&nbsp;|&nbsp;</span>
+            {% if role == 'sponsor' %}
+            <a href="/campaigns">
+                <li class="noselect">
+                    Campaigns
+                </li>
+            </a>
+            <span class="noselect">&nbsp;|&nbsp;</span>
+            {% endif%}
+            <a href="/find">
+                <li class="noselect">
+                    Find
+                </li>
+            </a>
+            <span class="noselect">&nbsp;|&nbsp;</span>
+            <a href="/stats">
+                <li class="noselect">
+                    Stats
+                </li>
+            </a>
+            <span class="noselect">&nbsp;|&nbsp;</span>
+            <a href="/logout">
+                <li class="noselect">
+                    Logout
+                </li>
+            </a>
+        </ul>
+    </nav>
+</body>
+</html>
