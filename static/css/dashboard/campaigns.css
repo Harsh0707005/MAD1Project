@@ -44,3 +44,48 @@ body{
     width: 100%;
     height: 100%;
 }
+/* #overlayBackground{
+    position: relative;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    background-color: rgba(201, 194, 193, 0.1);
+} */
+#addOverlay{
+    position: fixed;
+    height: 100vh;
+    width: 100vw;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    background-color: rgba(201, 194, 193, 0.8);
+}
+#addOverlay form{
+    display: flex;
+    flex-direction: column;
+    border-radius: 20px;
+    padding: 15px 20px;
+    background-color: white;
+    border: 1px solid black;
+}
+#addOverlay form div{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+#addOverlay form div{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+#addOverlay form div input{
+    margin: 5px;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid black;
+    outline: none;
+}
