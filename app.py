@@ -191,5 +191,16 @@ def search():
     search_query = json.loads(request.data.decode('utf-8'))['query']
     return json.dumps(search_query)
 
+@app.route("/logout", methods=['GET'])
+def logout():
+    sessionId = request.cookies.get("sessionId")
+    with sqlite3.connect('users.db') as users:
+        cursor = users.cursor()
+        cursor.execute('UPDATE users SET sessionId=? WHERE sessionId=?', ("", sessionId))
+        users.commit()
+        response = make_response(redirect("/login"))
+        response.set_cookie("sessionId", "", max_age=0)
+        return response
+
 if __name__ == "__main__":
     app.run(port=8000, debug=True)
