@@ -11,22 +11,18 @@
 </head>
 
 <body>
-    <div class="toast align-items-center text-bg-{{ 'success' if creation_status == 201 else 'danger' }} border-0 {{'show' if creation_status == 201}}" style="position: fixed;; right: 20px; top: 20px;" role="alert" aria-live="assertive"
-        aria-atomic="true">
+    <div class="toast align-items-center border-0" style="position: fixed; right: 20px; top: 20px;" role="alert"
+        aria-live="assertive" aria-atomic="true">
         <div class="d-flex">
             <div class="toast-body">
-                {% if creation_status == 201 %}
-                Campaign created successfully
-                {% elif creation_status == 400 %}
-                Error creating campaign
-                {% endif %}
+
             </div>
             <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
                 aria-label="Close"></button>
         </div>
     </div>
     <div id="addOverlay">
-        <form action="/campaigns/create" method="post">
+        <form id="createCampaignForm" action="/campaigns/create" method="post">
             <div id="hideDialog" style="display: flex; flex-direction: row-reverse; cursor: pointer;">
                 &#10006;
             </div>
@@ -85,6 +81,35 @@
     addIconDiv.addEventListener('click', () => {
         document.getElementById('addOverlay').style.display = 'flex'
     })
+
+    document.getElementById("createCampaignForm").addEventListener("submit", (e) => {
+        e.preventDefault()
+        fetch('/campaigns/create', {
+            method: 'POST',
+            body: new FormData(document.getElementById('createCampaignForm'))
+        }).then((response) => {
+            if (response.status == 201) {
+                response.json().then((data) => {
+                    fetch('/processCampaigns', {
+                        method: 'GET'
+                    }).then((response) => {
+                        response.text().then((data) => {
+                            document.querySelector('.campaigns').innerHTML = data
+                        })
+                    })
+                    document.getElementById('createCampaignForm').reset()
+                    document.getElementById('addOverlay').style.display = 'none'
+                    document.querySelector('.toast').classList.add('text-bg-success')
+                    document.querySelector('.toast').classList.add('show')
+                    document.querySelector('.toast-body').innerHTML = "Campaign created successfully"
+                    setTimeout(() => {
+                        document.querySelector('.toast').classList.remove('show')
+                    }, 3000)
+                })
+            }
+        }).catch(error => console.log("Fdsf"));
+    })
+
 </script>
 
 </html>

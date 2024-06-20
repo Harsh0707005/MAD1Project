@@ -237,7 +237,18 @@ def create_campaign():
         cursor.execute('SELECT * FROM campaigns WHERE sponsor=?', (username,))
         campaigns = cursor.fetchall()
         
-        return render_template('dashboard/campaigns.html', role=role, campaigns=campaigns, creation_status=creation_status)
+        response = make_response(json.dumps(campaigns))
+        response.status_code = creation_status
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    
+@app.route("/processCampaigns", methods=['GET'])
+def process():
+    with sqlite3.connect('users.db') as users:
+        cursor = users.cursor()
+        cursor.execute('SELECT * FROM campaigns')
+        campaigns = cursor.fetchall()
+        return render_template('dashboard/processCampaigns.html', campaigns=campaigns)
 
 @app.route("/logout", methods=['GET'])
 def logout():
