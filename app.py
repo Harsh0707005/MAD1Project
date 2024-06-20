@@ -207,7 +207,7 @@ def campaigns():
     role = data[2].title()
     with sqlite3.connect('users.db') as users:
         cursor = users.cursor()
-        cursor.execute('SELECT * FROM campaigns WHERE sponsor=?', (username,))
+        cursor.execute('SELECT * FROM campaigns WHERE sponsor=? ORDER BY date DESC', (username,))
         campaigns = cursor.fetchall()
         return render_template('dashboard/campaigns.html', role=role, campaigns=campaigns)
 
@@ -246,7 +246,7 @@ def create_campaign():
 def process():
     with sqlite3.connect('users.db') as users:
         cursor = users.cursor()
-        cursor.execute('SELECT * FROM campaigns')
+        cursor.execute('SELECT * FROM campaigns ORDER BY date DESC')
         campaigns = cursor.fetchall()
         return render_template('dashboard/processCampaigns.html', campaigns=campaigns)
 
