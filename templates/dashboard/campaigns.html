@@ -11,33 +11,52 @@
 </head>
 
 <body>
-        <div id="addOverlay">
-            <form action="/addCampaign" method="post">
-                <div id="hideDialog" style="display: flex; flex-direction: row-reverse; cursor: pointer;">
-                    &#10006;
-                </div>
-                <div class="input-group mb-3">
-                    <span>Title : &nbsp;</span>
-                    <input type="text" class="form-control" placeholder="" aria-describedby="basic-addon1" name="title">
-                </div>
-                <div class="input-group mb-3">
-                    <span>Description : &nbsp;</span>
-                    <input type="text" class="form-control" placeholder="" aria-describedby="basic-addon1" name="description">
-                </div>
-                <div class="input-group mb-3">
-                    <span>Image : &nbsp;</span>
-                    <input type="text" class="form-control" placeholder="" aria-describedby="basic-addon1" name="image">
-                </div>
-                <div class="input-group mb-3">
-                    <span>Niche : &nbsp;</span>
-                    <input type="text" class="form-control" placeholder="" aria-describedby="basic-addon1" name="niche">
-                </div>
-                <div style="display: flex; justify-content: space-around;">
-                    <button type="button" class="btn btn-danger">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                </div>
-            </form>
+    <div class="toast align-items-center text-bg-{{ 'success' if creation_status == 201 else 'danger' }} border-0 {{'show' if creation_status == 201}}" style="position: fixed;; right: 20px; top: 20px;" role="alert" aria-live="assertive"
+        aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                {% if creation_status == 201 %}
+                Campaign created successfully
+                {% elif creation_status == 400 %}
+                Error creating campaign
+                {% endif %}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                aria-label="Close"></button>
         </div>
+    </div>
+    <div id="addOverlay">
+        <form action="/campaigns/create" method="post">
+            <div id="hideDialog" style="display: flex; flex-direction: row-reverse; cursor: pointer;">
+                &#10006;
+            </div>
+            <div class="input-group mb-3">
+                <span>Title : &nbsp;</span>
+                <input type="text" class="form-control" placeholder="" aria-describedby="basic-addon1" name="title">
+            </div>
+            <div class="input-group mb-3">
+                <span>Description : &nbsp;</span>
+                <input type="text" class="form-control" placeholder="" aria-describedby="basic-addon1"
+                    name="description">
+            </div>
+            <div class="input-group mb-3">
+                <span>Image : &nbsp;</span>
+                <input type="text" class="form-control" placeholder="" aria-describedby="basic-addon1" name="image">
+            </div>
+            <div class="input-group mb-3">
+                <span>Niche : &nbsp;</span>
+                <input type="text" class="form-control" placeholder="" aria-describedby="basic-addon1" name="niche">
+            </div>
+            <div class="input-group mb-3">
+                <span>Budget : &nbsp;</span>
+                <input type="number" class="form-control" placeholder="" aria-describedby="basic-addon1" name="budget">
+            </div>
+            <div style="display: flex; justify-content: space-around;">
+                <button type="button" class="btn btn-danger">Cancel</button>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </form>
+    </div>
     {% with role = role %}
     {% include 'navbar.html' %}
     {% endwith %}
@@ -45,7 +64,7 @@
         <div class="campaigns">
             {% for campaign in campaigns %}
             <div class="campaign">
-                <span>{{campaign[0]}}</span>
+                <span>{{campaign[1]}}</span>
                 <span>View</span>
             </div>
             {% endfor %}
@@ -67,4 +86,5 @@
         document.getElementById('addOverlay').style.display = 'flex'
     })
 </script>
+
 </html>

@@ -3,6 +3,7 @@ import sqlite3
 import string
 import random
 import json
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -16,6 +17,12 @@ connect.execute('CREATE TABLE IF NOT EXISTS campaigns (id INTEGER NOT NULL PRIMA
 # generating random session id
 def generateRandomNo(n):
     return "".join(random.choice(string.ascii_letters + string.digits) for _ in range(n))
+
+def checkSessionId(sessionId):
+    with sqlite3.connect('users.db') as users:
+        cursor = users.cursor()
+        cursor.execute('SELECT * FROM users WHERE sessionId=?', (sessionId,))
+        return cursor.fetchone()
 
 @app.route("/", methods=["GET", "POST"])
 @app.route("/login", methods=["GET", "POST"])
@@ -192,7 +199,45 @@ def search():
 
 @app.route("/campaigns", methods=['GET'])
 def campaigns():
-    return render_template('dashboard/campaigns.html', role="Influencer", campaigns=["test1", "test2", "test3"])
+    sessionId = request.cookies.get("sessionId")
+    data = checkSessionId(sessionId)
+    if data == None:
+        return redirect("/login")
+    username = data[0]
+    role = data[2].title()
+    with sqlite3.connect('users.db') as users:
+        cursor = users.cursor()
+        cursor.execute('SELECT * FROM campaigns WHERE sponsor=?', (username,))
+        campaigns = cursor.fetchall()
+        return render_template('dashboard/campaigns.html', role=role, campaigns=campaigns)
+
+@app.route("/campaigns/create", methods=['POST'])
+def create_campaign():
+    sessionId = request.cookies.get("sessionId")
+    data = checkSessionId(sessionId)
+    if data == None:
+        return redirect("/login")
+    username = data[0]
+    role = data[2].title()
+    campaign_title = request.form['title']
+    campaign_description = request.form['description']
+    campaign_image = request.form['image']
+    campaign_niche = request.form['niche']
+    campaign_budget = request.form['budget']
+    datenow = datetime.now()
+    with sqlite3.connect('users.db')  as users:
+        cursor = users.cursor()
+        cursor.execute('INSERT INTO campaigns (title, description, image, niche, sponsor, budget, date) values (?, ?, ?, ?, ?, ?, ?)', (campaign_title, campaign_description, campaign_image, campaign_niche, username, campaign_budget, datenow))
+        try:
+            users.commit()
+            creation_status = 201
+        except Exception as e:
+            creation_status = 400
+        
+        cursor.execute('SELECT * FROM campaigns WHERE sponsor=?', (username,))
+        campaigns = cursor.fetchall()
+        
+        return render_template('dashboard/campaigns.html', role=role, campaigns=campaigns, creation_status=creation_status)
 
 @app.route("/logout", methods=['GET'])
 def logout():
