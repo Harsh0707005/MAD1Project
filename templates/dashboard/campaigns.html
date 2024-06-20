@@ -21,9 +21,12 @@
                 aria-label="Close"></button>
         </div>
     </div>
+    <div id="viewOverlay">
+
+    </div>
     <div id="addOverlay">
         <form id="createCampaignForm" action="/campaigns/create" method="post">
-            <div id="hideDialog" style="display: flex; flex-direction: row-reverse; cursor: pointer;">
+            <div class="hideDialog" style="display: flex; flex-direction: row-reverse; cursor: pointer;">
                 &#10006;
             </div>
             <div class="input-group mb-3">
@@ -60,8 +63,9 @@
         <div class="campaigns">
             {% for campaign in campaigns %}
             <div class="campaign">
+                <span style="display: none;">{{campaign[0]}}</span>
                 <span>{{campaign[1]}}</span>
-                <span>View</span>
+                <span class="viewCampaignButton noselect">View</span>
             </div>
             {% endfor %}
         </div>
@@ -73,11 +77,42 @@
     </div>
 </body>
 <script>
-    hideDialog = document.getElementById('hideDialog')
+    hideDialogButtons = document.querySelectorAll('.hideDialog')
     addIconDiv = document.getElementById('addIconDiv')
-    hideDialog.addEventListener('click', () => {
-        document.getElementById('addOverlay').style.display = 'none'
+    hideDialogButtons.forEach((hideDialog) => {
+        hideDialog.addEventListener('click', () => {
+            document.getElementById('addOverlay').style.display = 'none'
+            // document.getElementById('viewOverlay').style.display = 'none'
+        })
     })
+
+    const viewOverlay = document.getElementById('viewOverlay');
+
+    // MutationObserver to handle changes in viewOverlay's innerHTML
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'childList') {
+                attachHideDialogListeners(); // Re-attach listeners to new elements
+            }
+        });
+    });
+
+    const attachHideDialogListeners = () => {
+        const hideDialogButtons = viewOverlay.querySelectorAll('.hideDialog');
+        hideDialogButtons.forEach((hideDialog) => {
+            hideDialog.addEventListener('click', () => {
+                document.getElementById('addOverlay').style.display = 'none'
+                document.getElementById('viewOverlay').style.display = 'none';
+            });
+        });
+    };
+
+    // Initial attachment of listeners
+    attachHideDialogListeners();
+
+    // Observe viewOverlay for changes
+    observer.observe(viewOverlay, { childList: true });
+
     addIconDiv.addEventListener('click', () => {
         document.getElementById('addOverlay').style.display = 'flex'
     })
@@ -106,8 +141,25 @@
                         document.querySelector('.toast').classList.remove('show')
                     }, 3000)
                 })
+
             }
-        }).catch(error => console.log("Fdsf"));
+        })
+    })
+
+    document.querySelector('#campaignContainer').addEventListener('click', (e) => {
+        if (e.target.classList.contains('viewCampaignButton')) {
+            fetch('/campaigns/' + e.target.previousElementSibling.previousElementSibling.innerHTML, {
+                method: 'GET',
+                credentials: 'same-origin'
+            }).then((response) => {
+                if (response.status == 200) {
+                    response.text().then((data) => {
+                        document.getElementById('viewOverlay').innerHTML = data
+                        document.getElementById('viewOverlay').style.display = 'flex'
+                    })
+                }
+            })
+        }
     })
 
 </script>

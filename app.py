@@ -250,6 +250,24 @@ def process():
         campaigns = cursor.fetchall()
         return render_template('dashboard/processCampaigns.html', campaigns=campaigns)
 
+
+@app.route('/campaigns/<campaign_id>', methods=['GET'])
+def getCampaign(campaign_id):
+    data = checkSessionId(request.cookies.get("sessionId"))
+    if data == None:
+        return redirect("/login")
+    
+    with sqlite3.connect('users.db') as users:
+        cursor = users.cursor()
+        cursor.execute('SELECT * FROM campaigns WHERE id=?', (campaign_id,))
+        data = cursor.fetchone()
+        if data:
+            return render_template('dashboard/processViewCampaign.html', campaign_data = data)
+        else:
+            response = make_response()
+            response.status_code = 404
+        return response
+
 @app.route("/logout", methods=['GET'])
 def logout():
     sessionId = request.cookies.get("sessionId")
