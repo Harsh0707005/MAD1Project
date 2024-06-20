@@ -24,6 +24,12 @@ def checkSessionId(sessionId):
         cursor.execute('SELECT * FROM users WHERE sessionId=?', (sessionId,))
         return cursor.fetchone()
 
+def getRole(sessionId):
+    with sqlite3.connect('users.db') as users:
+        cursor = users.cursor()
+        cursor.execute('SELECT role FROM users WHERE sessionId=?', (sessionId,))
+        return cursor.fetchone()[0].title()
+
 @app.route("/", methods=["GET", "POST"])
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -191,6 +197,24 @@ def dashboard():
 @app.route("/find", methods=['GET'])
 def find():
     return render_template('dashboard/find.html', role="Influencer")
+
+@app.route('/find/campaigns', methods=['GET'])
+def find_campaigns():
+    role = getRole(request.cookies.get("sessionId"))
+    with sqlite3.connect('users.db') as users:
+        cursor = users.cursor()
+        cursor.execute('SELECT * FROM campaigns ORDER BY date DESC')
+        campaigns = cursor.fetchall()
+        return render_template('dashboard/find.html', data=campaigns, role=role, resultFor="campaigns")
+    
+@app.route('/find/influencers', methods=['GET'])
+def find_influencers():
+    role = getRole(request.cookies.get("sessionId"))
+    with sqlite3.connect('users.db') as users:
+        cursor = users.cursor()
+        cursor.execute('SELECT * FROM influencers')
+        influencers = cursor.fetchall()
+        return render_template('dashboard/find.html', data=influencers, role=role, resultFor="influencers")
 
 @app.route("/search", methods=['POST'])
 def search():
