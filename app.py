@@ -211,7 +211,7 @@ def find_influencers():
             cursor.execute('SELECT * FROM influencers')
             influencers = cursor.fetchall()
         else:
-            influencers = utils.searchUsers(search_query, role)
+            influencers = utils.searchUsers(search_query, "influencer")
         return render_template('dashboard/find.html', data=influencers, role=role, resultFor="influencers")
 
 @app.route("/search/<resultFor>", methods=['GET', 'POST'])
@@ -220,7 +220,7 @@ def search(resultFor):
     if resultFor=="campaigns":
         data = utils.searchCampaigns(request.args.get('q'))
     else:
-        data = utils.searchUsers(request.args.get('q'), role)
+        data = utils.searchUsers(request.args.get('q'), resultFor)
 
     return render_template('/dashboard/processSearchResults.html', data=data, resultFor=resultFor)
 

@@ -28,9 +28,9 @@ def searchCampaigns(query):
 
 def searchUsers(query, user):
     query = "%" + query + "%"
-    user+='s'
+    if user[-1] != 's': user+='s'
     with sqlite3.connect('users.db') as users:
         cursor = users.cursor()
-        cursor.execute('SELECT * FROM ? WHERE username LIKE ?', (user, query))
+        cursor.execute(f"SELECT * FROM {user} WHERE username LIKE '{query}'")
         data = cursor.fetchall()
         return data
