@@ -232,6 +232,10 @@ def campaigns():
         return redirect("/login")
     username = data[0]
     role = data[2].title()
+    if role.lower() == 'influencer':
+        response = make_response('Access Denied')
+        response.status_code = 403
+        return response
     with sqlite3.connect('users.db') as users:
         cursor = users.cursor()
         cursor.execute('SELECT * FROM campaigns WHERE sponsor=? ORDER BY date DESC', (username,))

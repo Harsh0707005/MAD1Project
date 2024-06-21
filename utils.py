@@ -2,7 +2,6 @@ import string
 import random
 import sqlite3
 
-# generating random session id
 def generateRandomNo(n):
     return "".join(random.choice(string.ascii_letters + string.digits) for _ in range(n))
 
