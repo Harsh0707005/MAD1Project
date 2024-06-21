@@ -1,0 +1,6 @@
+{% for chunk in data %}
+<div class="dataChunk">
+    <span>{{chunk[1] if resultFor=="campaigns" else chunk[0]}}</span>
+    <span>View</span>
+</div>
+{% endfor %}

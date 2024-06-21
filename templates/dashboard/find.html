@@ -17,11 +17,9 @@
 
     <div id="findContainer">
         <div id="searchParameterDiv">
-            <form id="searchForm" method="post" action="{{url_for('search')}}">
-                <!-- <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1" name="query"> -->
+            <div id="searchDiv">
                 <input id="searchInput" type="text" name="query" placeholder="Search" value="{{query}}">
-                <!-- <button></button> -->
-            </form>
+            </div>
             <a href="/find/campaigns"><button>Campaigns</button></a>
             <a href="/find/influencers"><button>Influencers</button></a>
         </div>
@@ -35,15 +33,16 @@
         </div>
     </div>
 </body>
+
 <script>
-    document.getElementById('searchInput').addEventListener('input', function () {
-        fetch('/search', {
+    searchInput = document.getElementById('searchInput')
+    searchInput.addEventListener('input', function () {
+        fetch(`/search/{{resultFor}}?q=${searchInput.value}`, {
             method: 'POST',
-            body: JSON.stringify({ query: document.getElementById('searchInput').value })
-        }).then(response => response.json()).then(data => {
-            document.getElementById('res').innerHTML = data
+            credentials : 'same-origin'
+        }).then(response => response.text()).then(data => {
+            document.getElementById('resultData').innerHTML = data
         })
-        // document.getElementById('searchForm').submit()
     })
 </script>
 

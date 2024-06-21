@@ -1,9 +1,9 @@
 from flask import Flask, render_template, request, url_for, make_response, redirect
 import sqlite3
-import string
-import random
 import json
 from datetime import datetime
+import utils
+
 
 app = Flask(__name__)
 
@@ -13,22 +13,6 @@ connect.execute('CREATE TABLE IF NOT EXISTS users (username TEXT NOT NULL PRIMAR
 connect.execute('CREATE TABLE IF NOT EXISTS influencers (username TEXT NOT NULL, presence TEXT, profic_pic TEXT NOT NULL, requests TEXT, total_earnings NUMERIC, rating INTEGER, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE)')
 connect.execute('CREATE TABLE IF NOT EXISTS sponsors (username TEXT NOT NULL, industry TEXT, requests TEXT, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE)')
 connect.execute('CREATE TABLE IF NOT EXISTS campaigns (id INTEGER NOT NULL PRIMARY KEY, title TEXT, description TEXT, image TEXT, niche TEXT, influencer TEXT, sponsor TEXT, budget NUMERIC, date TEXT)')
-
-# generating random session id
-def generateRandomNo(n):
-    return "".join(random.choice(string.ascii_letters + string.digits) for _ in range(n))
-
-def checkSessionId(sessionId):
-    with sqlite3.connect('users.db') as users:
-        cursor = users.cursor()
-        cursor.execute('SELECT * FROM users WHERE sessionId=?', (sessionId,))
-        return cursor.fetchone()
-
-def getRole(sessionId):
-    with sqlite3.connect('users.db') as users:
-        cursor = users.cursor()
-        cursor.execute('SELECT role FROM users WHERE sessionId=?', (sessionId,))
-        return cursor.fetchone()[0].title()
 
 @app.route("/", methods=["GET", "POST"])
 @app.route("/login", methods=["GET", "POST"])
@@ -63,7 +47,7 @@ def login():
                 if db_res[2] == "admin":
                     return render_template('login.html', role="User" , errMessage = "Login as admin!")
                 elif password == db_res[1]:
-                    sessionId = generateRandomNo(30)
+                    sessionId = utils.generateRandomNo(30)
                     cursor.execute('UPDATE users SET sessionID=? WHERE username=?', (sessionId, username))
                     users.commit()
                     response = make_response(redirect("/dashboard"))
@@ -200,31 +184,50 @@ def find():
 
 @app.route('/find/campaigns', methods=['GET'])
 def find_campaigns():
-    role = getRole(request.cookies.get("sessionId"))
+    if request.args.get('q'):
+        search_query = "%" + request.args.get('q') + "%"
+    else:
+        search_query = False
+    role = utils.getRole(request.cookies.get("sessionId"))
     with sqlite3.connect('users.db') as users:
         cursor = users.cursor()
-        cursor.execute('SELECT * FROM campaigns ORDER BY date DESC')
-        campaigns = cursor.fetchall()
+        if search_query == False:
+            cursor.execute('SELECT * FROM campaigns ORDER BY date DESC')
+            campaigns = cursor.fetchall()
+        else:
+            campaigns = utils.searchCampaigns(search_query)
         return render_template('dashboard/find.html', data=campaigns, role=role, resultFor="campaigns")
     
 @app.route('/find/influencers', methods=['GET'])
 def find_influencers():
-    role = getRole(request.cookies.get("sessionId"))
+    if request.args.get('q'):
+        search_query = "%" + request.args.get('q') + "%"
+    else:
+        search_query = False
+    role = utils.getRole(request.cookies.get("sessionId"))
     with sqlite3.connect('users.db') as users:
         cursor = users.cursor()
-        cursor.execute('SELECT * FROM influencers')
-        influencers = cursor.fetchall()
+        if search_query == False:
+            cursor.execute('SELECT * FROM influencers')
+            influencers = cursor.fetchall()
+        else:
+            influencers = utils.searchUsers(search_query, role)
         return render_template('dashboard/find.html', data=influencers, role=role, resultFor="influencers")
 
-@app.route("/search", methods=['POST'])
-def search():
-    search_query = json.loads(request.data.decode('utf-8'))['query']
-    return json.dumps(search_query)
+@app.route("/search/<resultFor>", methods=['GET', 'POST'])
+def search(resultFor):
+    role = utils.getRole(request.cookies.get("sessionId"))
+    if resultFor=="campaigns":
+        data = utils.searchCampaigns(request.args.get('q'))
+    else:
+        data = utils.searchUsers(request.args.get('q'), role)
+
+    return render_template('/dashboard/processSearchResults.html', data=data, resultFor=resultFor)
 
 @app.route("/campaigns", methods=['GET'])
 def campaigns():
     sessionId = request.cookies.get("sessionId")
-    data = checkSessionId(sessionId)
+    data = utils.checkSessionId(sessionId)
     if data == None:
         return redirect("/login")
     username = data[0]
@@ -238,7 +241,7 @@ def campaigns():
 @app.route("/campaigns/create", methods=['POST'])
 def create_campaign():
     sessionId = request.cookies.get("sessionId")
-    data = checkSessionId(sessionId)
+    data = utils.checkSessionId(sessionId)
     if data == None:
         return redirect("/login")
     username = data[0]
@@ -277,7 +280,7 @@ def process():
 
 @app.route('/campaigns/<campaign_id>', methods=['GET'])
 def getCampaign(campaign_id):
-    data = checkSessionId(request.cookies.get("sessionId"))
+    data = utils.checkSessionId(request.cookies.get("sessionId"))
     if data == None:
         return redirect("/login")
     
