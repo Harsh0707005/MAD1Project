@@ -180,7 +180,9 @@ def dashboard():
 
 @app.route("/find", methods=['GET'])
 def find():
-    return render_template('dashboard/find.html', role="Influencer")
+    role = utils.getRole(request.cookies.get("sessionId"))
+    data = utils.searchCampaigns(None)
+    return render_template('dashboard/find.html', data=data, role=role, resultFor='campaigns')
 
 @app.route('/find/campaigns', methods=['GET'])
 def find_campaigns():

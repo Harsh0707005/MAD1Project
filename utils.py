@@ -18,10 +18,14 @@ def getRole(sessionId):
         return cursor.fetchone()[0].title()
 
 def searchCampaigns(query):
-    query = "%" + query + "%"
+    if query != None:
+        query = "%" + query + "%"
     with sqlite3.connect('users.db') as users:
         cursor = users.cursor()
-        cursor.execute('SELECT * FROM campaigns WHERE title LIKE ? OR description LIKE ? OR niche LIKE ?', (query, query, query))
+        if query:
+            cursor.execute('SELECT * FROM campaigns WHERE title LIKE ? OR description LIKE ? OR niche LIKE ? ORDER BY date DESC', (query, query, query))
+        else:
+            cursor.execute('SELECT * FROM campaigns')
         data = cursor.fetchall()
         return data
 
