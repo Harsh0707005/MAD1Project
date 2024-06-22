@@ -27,10 +27,16 @@
             {% for chunk in data %}
             <div class="dataChunk">
                 <span>{{chunk[1] if resultFor=="campaigns" else chunk[0]}}</span>
-                <span>View</span>
+                <div>
+                    <span>View</span>
+                    {% if resultFor=='campaigns' and role=='Influencer' %}
+                    <span>Result</span>
+                    {% endif %}
+                </div>
             </div>
             {% endfor %}
         </div>
+    </div>
     </div>
 </body>
 
@@ -39,9 +45,13 @@
     searchInput.addEventListener('input', function () {
         fetch(`/search/{{resultFor}}?q=${searchInput.value}`, {
             method: 'POST',
-            credentials : 'same-origin'
+            credentials: 'same-origin'
         }).then(response => response.text()).then(data => {
+            if (!data){
+                data = "No results found"
+            }
             document.getElementById('resultData').innerHTML = data
+
         })
     })
 </script>

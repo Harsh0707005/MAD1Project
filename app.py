@@ -180,9 +180,10 @@ def dashboard():
 
 @app.route("/find", methods=['GET'])
 def find():
-    role = utils.getRole(request.cookies.get("sessionId"))
-    data = utils.searchCampaigns(None)
-    return render_template('dashboard/find.html', data=data, role=role, resultFor='campaigns')
+    # role = utils.getRole(request.cookies.get("sessionId"))
+    # data = utils.searchCampaigns(None)
+    # return render_template('dashboard/find.html', data=data, role=role, resultFor='campaigns')
+    return redirect('/find/campaigns')
 
 @app.route('/find/campaigns', methods=['GET'])
 def find_campaigns():
@@ -223,8 +224,8 @@ def search(resultFor):
         data = utils.searchCampaigns(request.args.get('q'))
     else:
         data = utils.searchUsers(request.args.get('q'), resultFor)
-
-    return render_template('/dashboard/processSearchResults.html', data=data, resultFor=resultFor)
+    
+    return render_template('/dashboard/processSearchResults.html', data=data, resultFor=resultFor, role=role)
 
 @app.route("/campaigns", methods=['GET'])
 def campaigns():
