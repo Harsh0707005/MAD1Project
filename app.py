@@ -217,7 +217,7 @@ def find_influencers():
             influencers = utils.searchUsers(search_query, "influencer")
         return render_template('dashboard/find.html', data=influencers, role=role, resultFor="influencers")
 
-@app.route("/search/<resultFor>", methods=['GET', 'POST'])
+@app.route("/search/<resultFor>", methods=['POST'])
 def search(resultFor):
     role = utils.getRole(request.cookies.get("sessionId"))
     if resultFor=="campaigns":
