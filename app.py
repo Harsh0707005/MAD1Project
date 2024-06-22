@@ -12,7 +12,7 @@ connect.execute('PRAGMA foreign_keys = ON;')
 connect.execute('CREATE TABLE IF NOT EXISTS users (username TEXT NOT NULL PRIMARY KEY, password TEXT NOT NULL, role TEXT NOT NULL, sessionId TEXT)')
 connect.execute('CREATE TABLE IF NOT EXISTS influencers (username TEXT NOT NULL, presence TEXT, profile_pic TEXT, request_sent TEXT, request_received TEXT, total_earnings NUMERIC, rating INTEGER, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE)')
 connect.execute('CREATE TABLE IF NOT EXISTS sponsors (username TEXT NOT NULL, industry TEXT, requests TEXT, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE)')
-connect.execute('CREATE TABLE IF NOT EXISTS campaigns (id INTEGER NOT NULL PRIMARY KEY, title TEXT, description TEXT, image TEXT, niche TEXT, requests TEXT, influencer TEXT, sponsor TEXT, budget NUMERIC, date TEXT)')
+connect.execute('CREATE TABLE IF NOT EXISTS new_campaigns (id INTEGER NOT NULL PRIMARY KEY, title TEXT, description TEXT, image TEXT, niche TEXT, request_sent TEXT, request_received TEXT, influencer TEXT, sponsor TEXT, budget NUMERIC, date TEXT)')
 
 @app.route("/", methods=["GET", "POST"])
 @app.route("/login", methods=["GET", "POST"])
@@ -226,6 +226,55 @@ def search(resultFor):
         data = utils.searchUsers(request.args.get('q'), resultFor)
     
     return render_template('/dashboard/processSearchResults.html', data=data, resultFor=resultFor, role=role)
+
+@app.route("/request", methods=['POST'])
+def request_campaign():
+    user_data = utils.checkSessionId(request.cookies.get("sessionId"))
+    if user_data == None:
+        return redirect("/login")
+    username = user_data[0]
+    role = utils.getRole(request.cookies.get("sessionId"))
+    request_data = request.get_json()
+    campaign_id = request_data['campaign_id']
+
+    with sqlite3.connect('users.db') as users:
+        cursor = users.cursor()
+        cursor.execute('SELECT * FROM campaigns WHERE id=?', (campaign_id,))
+        campaign_data = cursor.fetchone()
+        if not campaign_data:
+            response = make_response('Campaign not found')
+            response.status_code = 404
+            return response
+        cursor.execute('SELECT request_sent FROM influencers WHERE username=?', (username,))
+        influencer_request_sent = cursor.fetchone()
+        if not influencer_request_sent:
+            response = make_response('Influencer not found')
+            response.status_code = 404
+            return response
+        
+        if influencer_request_sent==(None,):
+            new_influencer_request_sent = campaign_id
+        else:
+            if campaign_id in influencer_request_sent[0].split(","):
+                response = make_response('Request already sent')
+                response.status_code = 400
+                return response
+            
+            new_influencer_request_sent = influencer_request_sent[0] + "," + campaign_id
+
+        # cursor.execute('UPDATE influencers SET request_sent=? WHERE username=?', (new_influencer_request_sent, username))
+        cursor.executescript(f'''
+UPDATE influencers SET request_sent="{new_influencer_request_sent}" WHERE username="{username}";
+UPDATE campaigns SET request_received="{username}" WHERE id="{campaign_id}";
+                             ''')
+        users.commit()
+        # print(utils.getTableData('influencers', col='username', val=username))
+        # print(utils.getTableData('campaigns', col='id', val=campaign_id))
+
+    return ""
+        
+
+
 
 @app.route("/campaigns", methods=['GET'])
 def campaigns():

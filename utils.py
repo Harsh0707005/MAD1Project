@@ -37,3 +37,15 @@ def searchUsers(query, user):
         cursor.execute(f"SELECT * FROM {user} WHERE username LIKE '{query}'")
         data = cursor.fetchall()
         return data
+
+def getTableData(table, col=None, val=None):
+    with sqlite3.connect('users.db') as users:
+        cursor = users.cursor()
+        if col and val:
+            query = f'SELECT * FROM {table} WHERE {col} = ?'
+            cursor.execute(query, (val,))
+        else:
+            query = f'SELECT * FROM {table}'
+            cursor.execute(query)
+        data = cursor.fetchall()
+        return data

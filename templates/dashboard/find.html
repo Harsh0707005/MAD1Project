@@ -26,11 +26,12 @@
         <div id="resultData">
             {% for chunk in data %}
             <div class="dataChunk">
+                <span style="display: none;">{{chunk[0] if resultFor=="campaigns"}}</span>
                 <span>{{chunk[1] if resultFor=="campaigns" else chunk[0]}}</span>
                 <div>
                     <span>View</span>
                     {% if resultFor=='campaigns' and role=='Influencer' %}
-                    <span>Request</span>
+                    <span class="request">Request</span>
                     {% endif %}
                 </div>
             </div>
@@ -47,12 +48,26 @@
             method: 'POST',
             credentials: 'same-origin'
         }).then(response => response.text()).then(data => {
-            if (!data){
+            if (!data) {
                 data = "No results found"
             }
             document.getElementById('resultData').innerHTML = data
 
         })
+    })
+    document.querySelector('#resultData').addEventListener('click', (e) => {
+        if (e.target.classList.contains('request')) {
+            fetch('/request', {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                method: 'POST',
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    campaign_id: e.target.parentElement.previousElementSibling.previousElementSibling.innerHTML,
+                }),
+            })
+        }
     })
 </script>
 

@@ -24,7 +24,7 @@ cursor = connect.cursor()
 def copy():
     with sqlite3.connect('users.db') as conn1:
         cursor = conn1.cursor()
-        conn1.execute('CREATE TABLE IF NOT EXISTS new_campaigns (id INTEGER NOT NULL PRIMARY KEY, title TEXT, description TEXT, image TEXT, niche TEXT, requests TEXT, influencer TEXT, sponsor TEXT, budget NUMERIC, date TEXT)')
+        conn1.execute('CREATE TABLE IF NOT EXISTS new_campaigns (id INTEGER NOT NULL PRIMARY KEY, title TEXT, description TEXT, image TEXT, niche TEXT, request_sent TEXT, request_received TEXT, influencer TEXT, sponsor TEXT, budget NUMERIC, date TEXT)')
         conn1.commit()
         cursor.execute('INSERT INTO new_campaigns(id, title, description, image, niche, influencer, sponsor, budget, date) SELECT id, title, description, image, niche, influencer, sponsor, budget, date FROM campaigns')
         conn1.commit()
@@ -38,5 +38,6 @@ def copy():
 # connect.execute('ALTER TABLE new_campaigns RENAME TO campaigns')
 
 connect.commit()
-cursor.execute('SELECT * FROM campaigns')
+# cursor.execute('UPDATE influencers SET request_sent=NULL WHERE username="abc"')
+cursor.execute('SELECT * FROM influencers')
 print(cursor.fetchall())
