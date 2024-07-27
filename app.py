@@ -271,15 +271,44 @@ def request_campaign():
             new_influencer_request_sent = influencer_request_sent[0] + "," + campaign_id
 
         # cursor.execute('UPDATE influencers SET request_sent=? WHERE username=?', (new_influencer_request_sent, username))
+        cursor.execute('SELECT request_received FROM campaigns WHERE id=?', (campaign_id,))
+        request_received = cursor.fetchone()
+        if request_received[0] == None:
+            new_request_received = username
+        else:
+            new_request_received = request_received[0] + "," + username
+
         cursor.executescript(f'''
 UPDATE influencers SET request_sent="{new_influencer_request_sent}" WHERE username="{username}";
-UPDATE campaigns SET request_received="{username}" WHERE id="{campaign_id}";
+UPDATE campaigns SET request_received="{new_request_received}" WHERE id="{campaign_id}";
                              ''')
         users.commit()
         # print(utils.getTableData('influencers', col='username', val=username))
         # print(utils.getTableData('campaigns', col='id', val=campaign_id))
 
     return ""
+
+@app.route("/<influencer>/reject_campaign/<campaign_id>", methods=['GET'])
+def reject_influencer(influencer, campaign_id):
+    user_data = utils.checkSessionId(request.cookies.get("sessionId"))
+    if user_data == None:
+        return redirect("/login")
+    username = user_data[0]
+    role = utils.getRole(request.cookies.get("sessionId"))
+    if role.lower() == 'influencer':
+        response = make_response('Access Denied')
+        response.status_code = 403
+        return response
+    with sqlite3.connect('users.db') as users:
+        cursor = users.cursor()
+        cursor.execute('SELECT request_received FROM campaigns WHERE id=? AND sponsor=?', (campaign_id,username))
+        request_received = cursor.fetchone()[0].split(",")
+        if request_received != (None,) and (influencer in request_received):
+            request_received.remove(influencer)
+            new_request_received = ",".join(request_received)
+            cursor.execute('UPDATE campaigns SET request_received=? WHERE id=?', (new_request_received, campaign_id))
+            users.commit()
+        return ""
 
 @app.route("/campaigns", methods=['GET'])
 def campaigns():

@@ -66,14 +66,15 @@
                     {% for inf in campaign[6].split(',') %}
                     <div class="campaign">
                         <div>
+                            <span style="display: none;">{{campaign[0]}}</span>
                             <span>{{campaign[1]}}</span>
                             <span>|</span>
                             <span>{{inf}}</span>
                         </div>
                         <div>
-                            <span>View</span>
-                            <span>Accept</span>
-                            <span>Reject</span>
+                            <span class="view">View</span>
+                            <span class="accept">Accept</span>
+                            <span class="reject">Reject</span>
                         </div>
                     </div>
                     {% endfor %}
@@ -112,6 +113,13 @@ showMore.addEventListener('click', ()=>{
             </div>
         `;
         showMore.parentElement.insertBefore(div, showMore);
+    }
+    
+})
+document.querySelector('#requests').addEventListener('click', (e)=>{
+    if (e.target.classList.contains('reject')){
+        // console.log(e.target.parentElement.previousElementSibling.lastElementChild.innerHTML);
+        fetch(`/${e.target.parentElement.previousElementSibling.lastElementChild.innerHTML}/reject_campaign/${e.target.parentElement.previousElementSibling.firstElementChild.innerHTML}`);
     }
 })
 </script>

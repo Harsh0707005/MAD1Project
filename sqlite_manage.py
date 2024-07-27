@@ -39,8 +39,8 @@ def copy():
 
 connect.commit()
 # cursor.execute('UPDATE influencers SET request_sent=NULL WHERE username="abc"')
-# cursor.execute('SELECT request_received FROM campaigns WHERE sponsor="bcd"')
-# cursor.execute('SELECT request_received FROM campaigns')
-cursor.execute('UPDATE campaigns SET request_received=NULL WHERE sponsor="bcd"')
+cursor.execute('SELECT request_received FROM campaigns WHERE sponsor="bcd"')
+# cursor.execute('SELECT * FROM influencers where username="abc"')
+# cursor.execute('UPDATE campaigns SET request_received=NULL WHERE sponsor="bcd"')
 connect.commit()
 print(cursor.fetchall())
