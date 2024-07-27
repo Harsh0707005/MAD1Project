@@ -332,8 +332,11 @@ def reject_influencer(influencer, campaign_id):
         request_received = cursor.fetchone()[0].split(",")
         if request_received != (None,) and (influencer in request_received):
             request_received.remove(influencer)
-            new_request_received = ",".join(request_received)
-            cursor.execute('UPDATE campaigns SET request_received=? WHERE id=?', (new_request_received, campaign_id))
+            if request_received == []:
+                cursor.execute('UPDATE campaigns SET request_received=NULL WHERE id=?', (campaign_id))
+            else:
+                new_request_received = ",".join(request_received)
+                cursor.execute('UPDATE campaigns SET request_received=? WHERE id=?', (new_request_received, campaign_id))
             users.commit()
         return ""
 
