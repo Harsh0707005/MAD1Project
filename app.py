@@ -147,7 +147,8 @@ def registerInfluencer():
             else:
                 cursor.execute('INSERT INTO users(username, password, role) VALUES(?, ?, ?)', (username, password, role))
                 users.commit()
-                cursor.execute('INSERT INTO influencers(username, presence, profic_pic, requests, total_earnings, rating) VALUES(?, ?, ?, ?, ?, ?)', (username, "", "", "", 0, 0))
+                # cursor.execute('INSERT INTO influencers(username, presence, profic_pic, requests, total_earnings, rating) VALUES(?, ?, ?, ?, ?, ?)', (username, "", "", "", 0, 0))
+                cursor.execute('INSERT INTO influencers(username, presence, profile_pic, request_sent, request_received, total_earnings, rating) VALUES(?, ?, ?, ?, ?, ?, ?)', (username, "", "", "", "", 0, 0))
                 return cursor.execute("SELECT * FROM users").fetchall()
 
     return render_template("register.html", role="Influencer")
@@ -175,8 +176,13 @@ def dashboard():
         db_result = cursor.fetchone()
         user_role = db_result[2].title()
         db_username = db_result[0]
+        requests_campaigns = []
+        if user_role == 'Sponsor':
+            cursor.execute('SELECT * FROM campaigns WHERE sponsor=? AND request_received IS NOT NULL', (db_username,))
+            requests_campaigns = cursor.fetchall()
+            print(requests_campaigns)
     
-    return render_template('dashboard/profile.html', role=user_role, username=db_username, active_campaigns=[["test1"], ["test2"], ["test3"]], requests_campaigns=[["test1"], ["test2"], ["test3"]])
+    return render_template('dashboard/profile.html', role=user_role, username=db_username, active_campaigns=[["test1"], ["test2"], ["test3"]], requests_campaigns=requests_campaigns)
 
 @app.route("/find", methods=['GET'])
 def find():

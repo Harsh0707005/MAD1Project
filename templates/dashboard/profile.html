@@ -48,14 +48,20 @@
                 <div class="campaigns">
 
                     {% for campaign in requests_campaigns %}
-                    <div class="campaign">
-                        <div>
-                            <span>{{campaign[0]}}</span>
-                        </div>
-                        <div>
-                            <span>View</span>
-                        </div>
-                    </div>
+                        {% for inf in campaign[6].split(',') %}
+                            <div class="campaign">
+                                <div>
+                                    <span>{{campaign[1]}}</span>
+                                    <span>|</span>
+                                    <span>{{inf}}</span>
+                                </div>
+                                <div>
+                                    <span>View</span>
+                                    <span>Accept</span>
+                                    <span>Reject</span>
+                                </div>
+                            </div>
+                        {% endfor %}
                     {% endfor %}
                 </div>
             </div>

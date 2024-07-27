@@ -30,7 +30,7 @@
                 <span>{{chunk[1] if resultFor=="campaigns" else chunk[0]}}</span>
                 <div>
                     <span>View</span>
-                    {% if resultFor=='campaigns' and role=='Influencer' %}
+                    {% if (resultFor=='campaigns' and role=='Influencer') or (resultFor=='influencers' and role=='Sponsor') %}
                     <span class="request">Request</span>
                     {% endif %}
                 </div>
