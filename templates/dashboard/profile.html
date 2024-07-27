@@ -13,7 +13,7 @@
 <body>
 
     {% with role = role %}
-        {% include 'navbar.html' %}
+    {% include 'navbar.html' %}
     {% endwith%}
 
     <div id="profileContainer">
@@ -31,16 +31,31 @@
                 Active Campaigns:
                 <div class="campaigns">
 
-                    {% for campaign in active_campaigns %}
-                    <div class="campaign">
-                        <div>
-                            <span>{{campaign[0]}}</span>
-                        </div>
-                        <div>
-                            <span>View</span>
-                        </div>
-                    </div>
-                    {% endfor %}
+                    {% if active_campaigns|length>4 %}
+                        {% for campaign in active_campaigns[:4] %}
+                            <div class="campaign">
+                                <div>
+                                    <span>{{campaign[1]}}</span>
+                                </div>
+                                <div>
+                                    <span>View</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <div id="show_more">Show More</div>
+
+                    {% else %}
+                        {% for campaign in active_campaigns %}
+                            <div class="campaign">
+                                <div>
+                                    <span>{{campaign[1]}}</span>
+                                </div>
+                                <div>
+                                    <span>View</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
             </div>
             <div id="requests">
@@ -48,25 +63,57 @@
                 <div class="campaigns">
 
                     {% for campaign in requests_campaigns %}
-                        {% for inf in campaign[6].split(',') %}
-                            <div class="campaign">
-                                <div>
-                                    <span>{{campaign[1]}}</span>
-                                    <span>|</span>
-                                    <span>{{inf}}</span>
-                                </div>
-                                <div>
-                                    <span>View</span>
-                                    <span>Accept</span>
-                                    <span>Reject</span>
-                                </div>
-                            </div>
-                        {% endfor %}
+                    {% for inf in campaign[6].split(',') %}
+                    <div class="campaign">
+                        <div>
+                            <span>{{campaign[1]}}</span>
+                            <span>|</span>
+                            <span>{{inf}}</span>
+                        </div>
+                        <div>
+                            <span>View</span>
+                            <span>Accept</span>
+                            <span>Reject</span>
+                        </div>
+                    </div>
+                    {% endfor %}
                     {% endfor %}
                 </div>
             </div>
         </div>
     </div>
 </body>
+
+<script>
+var active_campaigns = {{ active_campaigns | tojson }};
+var showMore = document.getElementById('show_more');
+let remaining = active_campaigns.length - showMore.parentElement.childElementCount-1;
+
+
+showMore.addEventListener('click', ()=>{
+    remaining = active_campaigns.length -  (showMore.parentElement.childElementCount - 1);
+    let uptil;
+    if (remaining>4){
+        uptil = showMore.parentElement.childElementCount+3;
+    }else{
+        uptil = active_campaigns.length;
+        showMore.style.display = 'none';
+    }
+    for (let i = showMore.parentElement.childElementCount-1; i<uptil;i++){
+        let campaign = active_campaigns[i];
+        let div = document.createElement('div');
+        div.classList.add('campaign');
+        div.innerHTML = `
+            <div>
+                <span>${campaign[1]}</span>
+            </div>
+            <div>
+                <span>View</span>
+            </div>
+        `;
+        showMore.parentElement.insertBefore(div, showMore);
+    }
+})
+</script>
 
 </html>

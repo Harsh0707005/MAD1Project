@@ -176,13 +176,15 @@ def dashboard():
         db_result = cursor.fetchone()
         user_role = db_result[2].title()
         db_username = db_result[0]
-        requests_campaigns = []
+        requests_campaigns, active_campaigns = [], []
         if user_role == 'Sponsor':
             cursor.execute('SELECT * FROM campaigns WHERE sponsor=? AND request_received IS NOT NULL', (db_username,))
             requests_campaigns = cursor.fetchall()
+            cursor.execute('SELECT * FROM campaigns WHERE sponsor=?', (db_username,))
+            active_campaigns = cursor.fetchall()
             print(requests_campaigns)
     
-    return render_template('dashboard/profile.html', role=user_role, username=db_username, active_campaigns=[["test1"], ["test2"], ["test3"]], requests_campaigns=requests_campaigns)
+    return render_template('dashboard/profile.html', role=user_role, username=db_username, active_campaigns=active_campaigns, requests_campaigns=requests_campaigns)
 
 @app.route("/find", methods=['GET'])
 def find():
@@ -278,9 +280,6 @@ UPDATE campaigns SET request_received="{username}" WHERE id="{campaign_id}";
         # print(utils.getTableData('campaigns', col='id', val=campaign_id))
 
     return ""
-        
-
-
 
 @app.route("/campaigns", methods=['GET'])
 def campaigns():
