@@ -117,7 +117,10 @@ showMore.addEventListener('click', ()=>{
     
 })
 document.querySelector('#requests').addEventListener('click', (e)=>{
-    if (e.target.classList.contains('reject')){
+    if (e.target.classList.contains('accept')){
+        fetch(`/${e.target.parentElement.previousElementSibling.lastElementChild.innerHTML}/accept_campaign/${e.target.parentElement.previousElementSibling.firstElementChild.innerHTML}`);
+    }
+    else if (e.target.classList.contains('reject')){
         // console.log(e.target.parentElement.previousElementSibling.lastElementChild.innerHTML);
         fetch(`/${e.target.parentElement.previousElementSibling.lastElementChild.innerHTML}/reject_campaign/${e.target.parentElement.previousElementSibling.firstElementChild.innerHTML}`);
     }

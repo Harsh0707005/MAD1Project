@@ -288,6 +288,33 @@ UPDATE campaigns SET request_received="{new_request_received}" WHERE id="{campai
 
     return ""
 
+@app.route("/<influencer>/accept_campaign/<campaign_id>", methods=['GET'])
+def accept_influencer(influencer, campaign_id):
+    user_data = utils.checkSessionId(request.cookies.get("sessionId"))
+    if user_data == None:
+        return redirect("/login")
+    username = user_data[0]
+    role = utils.getRole(request.cookies.get("sessionId"))
+    if role.lower() == 'influencer':
+        response = make_response('Access Denied')
+        response.status_code = 403
+        return response
+    with sqlite3.connect('users.db') as users:
+        cursor = users.cursor()
+        cursor.execute('SELECT request_received FROM campaigns WHERE id=? AND sponsor=?', (campaign_id,username))
+        request_received = cursor.fetchone()[0].split(",")
+        if request_received != (None,) and (influencer in request_received):
+            cursor.execute('UPDATE campaigns SET request_received=NULL WHERE id=?', (campaign_id,))
+            cursor.execute('UPDATE campaigns SET influencer=? WHERE id=?', (influencer, campaign_id))
+            cursor.execute('SELECT request_sent FROM influencers WHERE username=?', (influencer,))
+            request_sent = cursor.fetchone()[0].split(",")
+            if request_sent != (None,) and (campaign_id in request_sent):
+                request_sent.remove(campaign_id)
+                new_request_sent = ",".join(request_sent)
+                cursor.execute('UPDATE influencers SET request_sent=? WHERE username=?', (new_request_sent, influencer))
+            users.commit()
+        return ""
+
 @app.route("/<influencer>/reject_campaign/<campaign_id>", methods=['GET'])
 def reject_influencer(influencer, campaign_id):
     user_data = utils.checkSessionId(request.cookies.get("sessionId"))
