@@ -12,7 +12,7 @@ connect.execute('PRAGMA foreign_keys = ON;')
 connect.execute('CREATE TABLE IF NOT EXISTS users (username TEXT NOT NULL PRIMARY KEY, password TEXT NOT NULL, role TEXT NOT NULL, sessionId TEXT)')
 connect.execute('CREATE TABLE IF NOT EXISTS influencers (username TEXT NOT NULL, presence TEXT, profile_pic TEXT, request_sent TEXT, request_received TEXT, total_earnings NUMERIC, rating INTEGER, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE)')
 connect.execute('CREATE TABLE IF NOT EXISTS sponsors (username TEXT NOT NULL, industry TEXT, requests TEXT, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE)')
-connect.execute('CREATE TABLE IF NOT EXISTS new_campaigns (id INTEGER NOT NULL PRIMARY KEY, title TEXT, description TEXT, image TEXT, niche TEXT, request_sent TEXT, request_received TEXT, influencer TEXT, sponsor TEXT, budget NUMERIC, date TEXT)')
+connect.execute('CREATE TABLE IF NOT EXISTS campaigns (id INTEGER NOT NULL PRIMARY KEY, title TEXT, description TEXT, image TEXT, niche TEXT, request_sent TEXT, request_received TEXT, influencer TEXT, sponsor TEXT, budget NUMERIC, date TEXT)')
 
 @app.route("/", methods=["GET", "POST"])
 @app.route("/login", methods=["GET", "POST"])
@@ -182,8 +182,10 @@ def dashboard():
             requests_campaigns = cursor.fetchall()
             cursor.execute('SELECT * FROM campaigns WHERE sponsor=?', (db_username,))
             active_campaigns = cursor.fetchall()
-            print(requests_campaigns)
-    
+        elif user_role == 'Influencer':
+            cursor.execute('SELECT * FROM campaigns WHERE influencer=?', (db_username,))
+            active_campaigns = cursor.fetchall()
+        
     return render_template('dashboard/profile.html', role=user_role, username=db_username, active_campaigns=active_campaigns, requests_campaigns=requests_campaigns)
 
 @app.route("/find", methods=['GET'])
@@ -374,7 +376,8 @@ def create_campaign():
     datenow = datetime.now()
     with sqlite3.connect('users.db')  as users:
         cursor = users.cursor()
-        cursor.execute('INSERT INTO campaigns (title, description, image, niche, sponsor, budget, date) values (?, ?, ?, ?, ?, ?, ?)', (campaign_title, campaign_description, campaign_image, campaign_niche, username, campaign_budget, datenow))
+        # request_sent TEXT, request_received TEXT, influencer TEXT, sponsor TEXT, budget NUMERIC, date TEXT
+        cursor.execute('INSERT INTO campaigns (title, description, image, niche, request_sent, request_received, influencer, sponsor, budget, date) values (?, ?, ?, ?, NULL, NULL, NULL, ?, ?, ?)', (campaign_title, campaign_description, campaign_image, campaign_niche, username, campaign_budget, datenow))
         try:
             users.commit()
             creation_status = 201
@@ -401,6 +404,7 @@ def process():
 @app.route('/campaigns/<campaign_id>', methods=['GET'])
 def getCampaign(campaign_id):
     data = utils.checkSessionId(request.cookies.get("sessionId"))
+    role = utils.getRole(request.cookies.get("sessionId"))
     if data == None:
         return redirect("/login")
     
@@ -409,7 +413,7 @@ def getCampaign(campaign_id):
         cursor.execute('SELECT * FROM campaigns WHERE id=?', (campaign_id,))
         data = cursor.fetchone()
         if data:
-            return render_template('dashboard/processViewCampaign.html', campaign_data = data)
+            return render_template('dashboard/processViewCampaign.html', campaign_data = data, role=role)
         else:
             response = make_response()
             response.status_code = 404

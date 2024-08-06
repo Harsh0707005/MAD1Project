@@ -19,11 +19,17 @@
         <span>{{campaign_data[4]}}</span>
     </div>
     <div class="dataField">
-        <span>Influencer&nbsp;:</span>
-        <span>{{campaign_data[5]}}</span>
-    </div>
-    <div class="dataField">
         <span>Budget&nbsp;:</span>
-        <span>{{campaign_data[7]}}</span>
+        <span>{{campaign_data[9]}}</span>
     </div>
+    {% if (role=='Sponsor') %}
+    <div class="dataField">
+        <span>Influencer Assigned&nbsp;:</span>
+        <span>{{campaign_data[7]}}</span>
+        {% if (campaign_data[7] == None) %}
+        <a href="/find/influencers"><span id="findInfluencerButton">Find</span></a>
+        {% endif %}
+    </div>
+    {% endif %}
+    <!-- id, title, description, image, niche, request_sent, request_received, influencer, sponsor, budget, date -->
 </div>
