@@ -30,6 +30,10 @@
         <a href="/find/influencers"><span id="findInfluencerButton">Find</span></a>
         {% endif %}
     </div>
+    {% elif (role=='Influencer') %}
+    <div class="dataField">
+        <span>Sponsor&nbsp;:</span>
+        <span>{{campaign_data[8]}}</span>
     {% endif %}
     <!-- id, title, description, image, niche, request_sent, request_received, influencer, sponsor, budget, date -->
 </div>

@@ -34,7 +34,7 @@ def copy():
         print(cursor.fetchall())
 
 
-# cursor.execute('UPDATE influencers SET request_sent=NULL AND request_received=NULL')
+cursor.execute('SELECT * FROM influencers')
 
 connect.commit()
 print(cursor.fetchall())

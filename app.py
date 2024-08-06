@@ -185,7 +185,9 @@ def dashboard():
         elif user_role == 'Influencer':
             cursor.execute('SELECT * FROM campaigns WHERE influencer=?', (db_username,))
             active_campaigns = cursor.fetchall()
-        
+            cursor.execute('SELECT * FROM campaigns WHERE request_sent LIKE ?', ('%' + db_username + '%',))
+            requests_campaigns = cursor.fetchall()
+
     return render_template('dashboard/profile.html', role=user_role, username=db_username, active_campaigns=active_campaigns, requests_campaigns=requests_campaigns)
 
 @app.route("/find", methods=['GET'])
@@ -289,6 +291,49 @@ UPDATE campaigns SET request_received="{new_request_received}" WHERE id="{campai
         # print(utils.getTableData('campaigns', col='id', val=campaign_id))
 
     return ""
+
+@app.route("/request/influencer/<influencer>/<campaign_id>", methods=['GET'])
+def request_influencer(influencer, campaign_id):
+    user_data = utils.checkSessionId(request.cookies.get("sessionId"))
+    if user_data == None:
+        return redirect("/login")
+    username = user_data[0]
+    role = utils.getRole(request.cookies.get("sessionId"))
+    if role.lower() == 'influencer':
+        response = make_response('Access Denied')
+        response.status_code = 403
+        return response
+    with sqlite3.connect('users.db') as users:
+        cursor = users.cursor()
+        cursor.execute('SELECT * FROM campaigns WHERE id=?', (campaign_id,))
+        campaign_data = cursor.fetchone()
+        if not campaign_data:
+            response = make_response('Campaign not found')
+            response.status_code = 404
+            return response
+        
+        if campaign_data[7] == None or campaign_data[7].strip() == "":
+            new_request_sent = influencer
+        else:
+            new_request_sent = campaign_data[5] + "," + influencer
+        
+        cursor.execute('SELECT request_received FROM influencers WHERE username=?', (influencer,))
+        influencer_request_received = cursor.fetchone()
+        if not influencer_request_received:
+            response = make_response('Influencer not found')
+            response.status_code = 404
+            return response
+        if (influencer_request_received[0] == None or influencer_request_received[0].strip() == ""):
+            new_influencer_request_received = campaign_id
+        else:
+            new_influencer_request_received = influencer_request_received[0] + "," + campaign_id
+
+        cursor.executescript(f'''
+UPDATE influencers SET request_received="{new_influencer_request_received}" WHERE username="{influencer}";
+UPDATE campaigns SET request_sent="{new_request_sent}" WHERE id="{campaign_id}";
+                             ''')
+        users.commit()
+        return ""
 
 @app.route("/<influencer>/accept_campaign/<campaign_id>", methods=['GET'])
 def accept_influencer(influencer, campaign_id):
@@ -400,6 +445,21 @@ def process():
         campaigns = cursor.fetchall()
         return render_template('dashboard/processCampaigns.html', campaigns=campaigns)
 
+@app.route("/unassignedCampaigns", methods=['GET', 'POST'])
+def unassignedCampaigns():
+    sessionId = request.cookies.get("sessionId")
+    data = utils.checkSessionId(sessionId)
+    role = utils.getRole(sessionId)
+    username = data[0]
+    if role.lower() == "influencer":
+        response = make_response('Access Denied')
+        response.status_code = 403
+        return response
+    with sqlite3.connect('users.db') as users:
+        cursor = users.cursor()
+        cursor.execute('SELECT * FROM campaigns WHERE influencer IS NULL AND sponsor=? ORDER BY date DESC', (username,))
+        campaigns = cursor.fetchall()
+        return render_template('dashboard/assignCampaign.html', unassignedCampaigns=campaigns)
 
 @app.route('/campaigns/<campaign_id>', methods=['GET'])
 def getCampaign(campaign_id):

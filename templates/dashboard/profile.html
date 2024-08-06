@@ -69,6 +69,7 @@
                 <div class="campaigns">
 
                     {% for campaign in requests_campaigns %}
+                    {% if role=="Sponsor" %}
                     {% for inf in campaign[6].split(',') %}
                     <div class="campaign">
                         <div>
@@ -84,6 +85,20 @@
                         </div>
                     </div>
                     {% endfor %}
+                    {% elif role=="Influencer" %}
+                    <div class="campaign">
+                        <div>
+                            <span style="display: none;">{{campaign[0]}}</span>
+                            <span>{{campaign[1]}}</span>
+                            <span>|</span>
+                            <span>{{campaign[8]}}</span>
+                        </div>
+                        <div>
+                            <span class="view">View</span>
+                            <span class="accept">Accept</span>
+                            <span class="reject">Reject</span>
+                        </div>
+                    {% endif %}
                     {% endfor %}
                 </div>
             </div>
