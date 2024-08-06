@@ -1,0 +1,12 @@
+<div id="viewContainer">
+    <div class="hideDialog" style="display: flex; flex-direction: row-reverse; cursor: pointer;">
+        &#10006;
+    </div>
+    {% for campaign in unassignedCampaigns %}
+    <div class="unassigned">
+        <input type="radio" id="{{ campaign[0] }}" name="unassignedCampaign" value="{{ campaign[0] }}">
+        <label for="{{ campaign[0] }}">{{ campaign[1] }}</label>
+    </div>
+    {% endfor %}
+    <button id="assignButton">Assign</button>
+</div>
