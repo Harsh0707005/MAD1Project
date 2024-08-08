@@ -79,7 +79,7 @@
                             <span>{{inf}}</span>
                         </div>
                         <div>
-                            <span class="view">View</span>
+                            <span class="viewCampaignButton noselect">View</span>
                             <span class="accept">Accept</span>
                             <span class="reject">Reject</span>
                         </div>
@@ -94,7 +94,7 @@
                             <span>{{campaign[8]}}</span>
                         </div>
                         <div>
-                            <span class="view">View</span>
+                            <span class="viewCampaignButton noselect">View</span>
                             <span class="accept">Accept</span>
                             <span class="reject">Reject</span>
                         </div>
@@ -145,6 +145,25 @@
         }
         else if (e.target.classList.contains('reject')) {
             fetch(`/${e.target.parentElement.previousElementSibling.lastElementChild.innerHTML}/reject_campaign/${e.target.parentElement.previousElementSibling.firstElementChild.innerHTML}`);
+        }
+        else if (e.target.classList.contains('viewCampaignButton')) {
+            fetch('/campaigns/' + e.target.parentElement.previousElementSibling.firstElementChild.innerHTML, {
+                method: 'GET',
+                credentials: 'same-origin'
+            }).then((response) => {
+                if (response.status == 200) {
+                    response.text().then((data) => {
+                        document.getElementById('viewOverlay').innerHTML = data
+                        document.getElementById('viewOverlay').style.display = 'flex'
+                        hideDialogButtons = document.querySelectorAll('.hideDialog')
+                        hideDialogButtons.forEach((hideDialog) => {
+                            hideDialog.addEventListener('click', () => {
+                                document.getElementById('viewOverlay').style.display = 'none'
+                            })
+                        })
+                    })
+                }
+            })
         }
     })
     document.querySelector('#active').addEventListener('click', (e) => {

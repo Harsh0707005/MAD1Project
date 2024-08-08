@@ -34,7 +34,8 @@ def copy():
         print(cursor.fetchall())
 
 
-cursor.execute('SELECT * FROM influencers')
+cursor.execute('SELECT * FROM influencers WHERE username="abc"')
+# cursor.execute('UPDATE campaigns set influencer = NULL WHERE id = 2')
 
 connect.commit()
 print(cursor.fetchall())
