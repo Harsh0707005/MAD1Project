@@ -96,6 +96,7 @@ body{
 #viewContainer{
     display: flex;
     flex-direction: column;
+    justify-content: start;
     gap: 20px;
     border-radius: 20px;
     padding: 15px 20px;
@@ -107,7 +108,7 @@ body{
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-around;
+    justify-content: space-between;
     gap: 5px;
     width: 100%;
 }

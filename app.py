@@ -180,7 +180,7 @@ def dashboard():
         if user_role == 'Sponsor':
             cursor.execute('SELECT * FROM campaigns WHERE sponsor=? AND request_received IS NOT NULL', (db_username,))
             requests_campaigns = cursor.fetchall()
-            cursor.execute('SELECT * FROM campaigns WHERE sponsor=?', (db_username,))
+            cursor.execute('SELECT * FROM campaigns WHERE sponsor=? AND completed!=1', (db_username,))
             active_campaigns = cursor.fetchall()
         elif user_role == 'Influencer':
             cursor.execute('SELECT * FROM campaigns WHERE influencer=?', (db_username,))
@@ -462,7 +462,7 @@ def create_campaign():
     with sqlite3.connect('users.db')  as users:
         cursor = users.cursor()
         # request_sent TEXT, request_received TEXT, influencer TEXT, sponsor TEXT, budget NUMERIC, date TEXT
-        cursor.execute('INSERT INTO campaigns (title, description, image, niche, request_sent, request_received, influencer, sponsor, budget, date) values (?, ?, ?, ?, NULL, NULL, NULL, ?, ?, ?)', (campaign_title, campaign_description, campaign_image, campaign_niche, username, campaign_budget, datenow))
+        cursor.execute('INSERT INTO campaigns (title, description, image, niche, request_sent, request_received, influencer, sponsor, budget, completed, date) values (?, ?, ?, ?, NULL, NULL, NULL, ?, ?, ?, ?)', (campaign_title, campaign_description, campaign_image, campaign_niche, username, campaign_budget, 0, datenow))
         try:
             users.commit()
             creation_status = 201
@@ -517,6 +517,20 @@ def getCampaign(campaign_id):
         else:
             response = make_response()
             response.status_code = 404
+        return response
+
+@app.route('/campaigns/<campaign_id>/mark-complete', methods=['GET'])
+def markComplete(campaign_id):
+    data = utils.checkSessionId(request.cookies.get("sessionId"))
+    role = utils.getRole(request.cookies.get("sessionId"))
+    if data == None:
+        return redirect("/login")
+    with sqlite3.connect('users.db') as users:
+        cursor = users.cursor()
+        cursor.execute('UPDATE campaigns SET completed=? WHERE id=?', (1, campaign_id))
+        users.commit()
+        response = make_response()
+        response.status_code = 200
         return response
 
 @app.route("/logout", methods=['GET'])

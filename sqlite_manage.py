@@ -24,18 +24,18 @@ cursor = connect.cursor()
 def copy():
     with sqlite3.connect('users.db') as conn1:
         cursor = conn1.cursor()
-        conn1.execute('CREATE TABLE IF NOT EXISTS new_campaigns (id INTEGER NOT NULL PRIMARY KEY, title TEXT, description TEXT, image TEXT, niche TEXT, request_sent TEXT, request_received TEXT, influencer TEXT, sponsor TEXT, budget NUMERIC, date TEXT)')
+        conn1.execute('CREATE TABLE IF NOT EXISTS new_campaigns (id INTEGER NOT NULL PRIMARY KEY, title TEXT, description TEXT, image TEXT, niche TEXT, request_sent TEXT, request_received TEXT, influencer TEXT, sponsor TEXT, budget NUMERIC, completed INT, date TEXT)')
         conn1.commit()
-        cursor.execute('INSERT INTO new_campaigns(id, title, description, image, niche, influencer, sponsor, budget, date) SELECT id, title, description, image, niche, influencer, sponsor, budget, date FROM campaigns')
+        cursor.execute('INSERT INTO new_campaigns(id, title, description, image, niche, request_sent, request_received, influencer, sponsor, budget, date) SELECT id, title, description, image, niche, request_sent, request_received, influencer, sponsor, budget, date FROM campaigns')
         conn1.commit()
         cursor.execute('SELECT * FROM new_campaigns')
         print(cursor.fetchall())
         cursor.execute('SELECT * FROM campaigns')
         print(cursor.fetchall())
+        cursor.execute('DROP TABLE campaigns')
+        cursor.execute('ALTER TABLE new_campaigns RENAME TO campaigns')
 
-
-cursor.execute('SELECT * FROM influencers WHERE username="abc"')
-# cursor.execute('UPDATE campaigns set influencer = NULL WHERE id = 2')
+cursor.execute('SELECT * FROM campaigns')
 
 connect.commit()
 print(cursor.fetchall())
