@@ -17,8 +17,12 @@
     {% endwith%}
     <h1 style="text-align: center;">Statistics</h1>
     <div style="display: flex; align-items: center; justify-content: center;">
+        {% if role|lower == 'influencer' %}
         <canvas id="requestAssignedChart" style="width:100%;max-width:600px"></canvas>
         <canvas id="ratingChart" style="width:100%;max-width:600px"></canvas>
+        {% elif role|lower == 'sponsor' %}
+        <canvas id="numCampaignsChart" style="width:100%;max-width:600px"></canvas>
+        {% endif %}
     </div>
 </body>
 <script>
@@ -82,8 +86,40 @@
             }
         });
     }
-    requestAssigned();
-    ratingChart();
+    function numCampaigns(){
+        var xValues = ["Unassigned Campaigns", "Assigned Campaigns", "Completed Campaigns"];
+        var yValues = [parseInt('{{unassigned_campaigns}}'), parseInt('{{assigned_campaigns}}'), parseInt('{{completed_campaigns}}')];
+        var barColors = [
+            "#b91d47",
+            "#00aba9",
+            "#2b5797"
+        ];
+        
+        new Chart("numCampaignsChart", {
+            type: "pie",
+            data: {
+                labels: xValues,
+                datasets: [{
+                    backgroundColor: barColors,
+                    data: yValues
+                }]
+            },
+            options: {
+                title: {
+                    display: true,
+                    fontSize: 23,
+                    fontColor: "black",
+                    text: "Unassigned vs Assigned vs Completed Campaigns"
+                }
+            }
+        });
+    }
+    if ('{{role}}'.toLowerCase() == 'influencer'){
+        requestAssigned();
+        ratingChart();
+    }else if ('{{role}}'.toLowerCase() == 'sponsor'){
+        numCampaigns();
+    }
 </script>
 
 </html>

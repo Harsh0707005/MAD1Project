@@ -580,7 +580,18 @@ def stats():
             cursor.execute('SELECT * FROM influencers WHERE username=?', (username,))
             data = cursor.fetchone()
             return render_template('dashboard/stats.html', data=data, role=role)
-    return render_template('dashboard/stats.html')
+    elif role.lower() == "sponsor":
+        with sqlite3.connect('users.db') as users:
+            cursor = users.cursor()
+            cursor.execute('SELECT COUNT(*) FROM campaigns WHERE sponsor=?', (username,))
+            total_campaigns = cursor.fetchone()[0]
+            cursor.execute('SELECT COUNT(*) FROM campaigns WHERE sponsor=? AND influencer IS NOT NULL', (username,))
+            assigned_campaigns = cursor.fetchone()[0]
+            cursor.execute('SELECT COUNT(*) FROM campaigns WHERE sponsor=? AND completed=1', (username,))
+            completed_campaigns = cursor.fetchone()[0]
+            cursor.execute('SELECT SUM(budget) FROM campaigns WHERE sponsor=? AND completed=1', (username,))
+            spent = cursor.fetchone()[0]
+            return render_template('dashboard/stats.html', unassigned_campaigns=total_campaigns-assigned_campaigns, assigned_campaigns=assigned_campaigns, completed_campaigns=completed_campaigns, spent=spent, role=role, data=None)
 
 @app.route("/logout", methods=['GET'])
 def logout():
