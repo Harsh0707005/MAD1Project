@@ -35,7 +35,8 @@ def copy():
         cursor.execute('DROP TABLE campaigns')
         cursor.execute('ALTER TABLE new_campaigns RENAME TO campaigns')
 
-cursor.execute('SELECT * FROM campaigns')
+cursor.execute('UPDATE campaigns SET completed = 0')
+cursor.execute('UPDATE influencers SET rating = 0')
 
 connect.commit()
 print(cursor.fetchall())

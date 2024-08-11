@@ -10,7 +10,7 @@ app = Flask(__name__)
 connect = sqlite3.connect('users.db')
 connect.execute('PRAGMA foreign_keys = ON;')
 connect.execute('CREATE TABLE IF NOT EXISTS users (username TEXT NOT NULL PRIMARY KEY, password TEXT NOT NULL, role TEXT NOT NULL, sessionId TEXT)')
-connect.execute('CREATE TABLE IF NOT EXISTS influencers (username TEXT NOT NULL, presence TEXT, profile_pic TEXT, request_sent TEXT, request_received TEXT, total_earnings NUMERIC, rating INTEGER, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE)')
+connect.execute('CREATE TABLE IF NOT EXISTS influencers (username TEXT NOT NULL, presence TEXT, profile_pic TEXT, request_sent TEXT, request_received TEXT, total_earnings NUMERIC, rating NUMERIC, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE)')
 connect.execute('CREATE TABLE IF NOT EXISTS sponsors (username TEXT NOT NULL, industry TEXT, requests TEXT, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE)')
 connect.execute('CREATE TABLE IF NOT EXISTS campaigns (id INTEGER NOT NULL PRIMARY KEY, title TEXT, description TEXT, image TEXT, niche TEXT, request_sent TEXT, request_received TEXT, influencer TEXT, sponsor TEXT, budget NUMERIC, date TEXT)')
 
@@ -182,13 +182,18 @@ def dashboard():
             requests_campaigns = cursor.fetchall()
             cursor.execute('SELECT * FROM campaigns WHERE sponsor=? AND completed!=1', (db_username,))
             active_campaigns = cursor.fetchall()
+            rating = None
         elif user_role == 'Influencer':
             cursor.execute('SELECT * FROM campaigns WHERE influencer=? AND completed!=1', (db_username,))
             active_campaigns = cursor.fetchall()
             cursor.execute('SELECT * FROM campaigns WHERE request_sent LIKE ?', ('%' + db_username + '%',))
             requests_campaigns = cursor.fetchall()
+            cursor.execute('SELECT * FROM influencers WHERE username=?', (db_username,))
+            influencer_data = cursor.fetchone()
+            rating = influencer_data[6]
 
-    return render_template('dashboard/profile.html', role=user_role, username=db_username, active_campaigns=active_campaigns, requests_campaigns=requests_campaigns)
+
+    return render_template('dashboard/profile.html', role=user_role, username=db_username, active_campaigns=active_campaigns, requests_campaigns=requests_campaigns, rating = rating)
 
 @app.route("/find", methods=['GET'])
 def find():
@@ -529,9 +534,23 @@ def markComplete(campaign_id):
         cursor = users.cursor()
         cursor.execute('UPDATE campaigns SET completed=? WHERE id=?', (1, campaign_id))
         users.commit()
-        response = make_response()
-        response.status_code = 200
+        response = render_template('rating.html')
         return response
+    
+@app.route('/campaign/rate/<influencer>/<rating>', methods=['GET'])
+def rate(influencer, rating):
+    with sqlite3.connect('users.db') as users:
+        cursor = users.cursor()
+        cursor.execute('SELECT rating FROM influencers WHERE username=?', (influencer,))
+        influencer_rating = cursor.fetchone()[0]
+        if influencer_rating == 0:
+            final_rating = rating
+        else:
+            final_rating = (influencer_rating + int(rating))/2
+        cursor.execute('UPDATE influencers SET rating=? WHERE username=?', (final_rating, influencer))
+        # cursor.execute('UPDATE campaigns SET completed=? WHERE id=?', (1, campaign_id))
+        users.commit()
+    return ""
 
 @app.route("/logout", methods=['GET'])
 def logout():
