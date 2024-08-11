@@ -37,6 +37,7 @@ def copy():
 
 cursor.execute('UPDATE campaigns SET completed = 0')
 cursor.execute('UPDATE influencers SET rating = 0')
+cursor.execute('UPDATE influencers SET total_earnings = 0')
 
 connect.commit()
 print(cursor.fetchall())

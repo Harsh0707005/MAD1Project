@@ -183,6 +183,7 @@ def dashboard():
             cursor.execute('SELECT * FROM campaigns WHERE sponsor=? AND completed!=1', (db_username,))
             active_campaigns = cursor.fetchall()
             rating = None
+            earnings = None
         elif user_role == 'Influencer':
             cursor.execute('SELECT * FROM campaigns WHERE influencer=? AND completed!=1', (db_username,))
             active_campaigns = cursor.fetchall()
@@ -191,9 +192,10 @@ def dashboard():
             cursor.execute('SELECT * FROM influencers WHERE username=?', (db_username,))
             influencer_data = cursor.fetchone()
             rating = influencer_data[6]
+            earnings = influencer_data[5]
 
 
-    return render_template('dashboard/profile.html', role=user_role, username=db_username, active_campaigns=active_campaigns, requests_campaigns=requests_campaigns, rating = rating)
+    return render_template('dashboard/profile.html', role=user_role, username=db_username, active_campaigns=active_campaigns, requests_campaigns=requests_campaigns, rating = rating, earnings = earnings)
 
 @app.route("/find", methods=['GET'])
 def find():
@@ -524,8 +526,8 @@ def getCampaign(campaign_id):
             response.status_code = 404
         return response
 
-@app.route('/campaigns/<campaign_id>/mark-complete', methods=['GET'])
-def markComplete(campaign_id):
+@app.route('/campaigns/<campaign_id>/mark-complete/<influencer>', methods=['GET'])
+def markComplete(campaign_id, influencer):
     data = utils.checkSessionId(request.cookies.get("sessionId"))
     role = utils.getRole(request.cookies.get("sessionId"))
     if data == None:
@@ -533,6 +535,13 @@ def markComplete(campaign_id):
     with sqlite3.connect('users.db') as users:
         cursor = users.cursor()
         cursor.execute('UPDATE campaigns SET completed=? WHERE id=?', (1, campaign_id))
+        users.commit()
+        cursor.execute('SELECT total_earnings FROM influencers WHERE username=?', (influencer,))
+        total_earnings = cursor.fetchone()[0]
+        cursor.execute('SELECT budget FROM campaigns WHERE id=?', (campaign_id,))
+        budget = cursor.fetchone()[0]
+        new_total_earnings = total_earnings + budget
+        cursor.execute('UPDATE influencers SET total_earnings=? WHERE username=?', (new_total_earnings, influencer))
         users.commit()
         response = render_template('rating.html')
         return response

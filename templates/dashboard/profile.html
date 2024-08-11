@@ -24,7 +24,7 @@
         <div id="left">
             <img src="{{url_for('static', filename='assets/placeholderProfilePic.png')}}" alt="">
             <span>Rating: {{rating}}/5</span>
-            <span>Earnings this month: {{earnings}}</span>
+            <span>Total Earnings: {{earnings}}</span>
         </div>
         {% endif %}
 
@@ -211,7 +211,7 @@
                 }
             })
         }else if (e.target.classList.contains('markComplete')) {
-            fetch('/campaigns/' + e.target.previousElementSibling.firstElementChild.innerHTML + '/mark-complete', {
+            fetch('/campaigns/' + e.target.previousElementSibling.firstElementChild.innerHTML + '/mark-complete/' + e.target.parentElement.previousElementSibling.lastElementChild.innerHTML, {
                 method: 'GET',
                 credentials: 'same-origin'
             }).then((response) => {
