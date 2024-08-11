@@ -183,7 +183,7 @@ def dashboard():
             cursor.execute('SELECT * FROM campaigns WHERE sponsor=? AND completed!=1', (db_username,))
             active_campaigns = cursor.fetchall()
         elif user_role == 'Influencer':
-            cursor.execute('SELECT * FROM campaigns WHERE influencer=?', (db_username,))
+            cursor.execute('SELECT * FROM campaigns WHERE influencer=? AND completed!=1', (db_username,))
             active_campaigns = cursor.fetchall()
             cursor.execute('SELECT * FROM campaigns WHERE request_sent LIKE ?', ('%' + db_username + '%',))
             requests_campaigns = cursor.fetchall()
