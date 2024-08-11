@@ -35,9 +35,24 @@ def copy_campaigns():
         cursor.execute('DROP TABLE campaigns')
         cursor.execute('ALTER TABLE new_campaigns RENAME TO campaigns')
 
-cursor.execute('UPDATE campaigns SET completed = 0')
-cursor.execute('UPDATE influencers SET rating = 0')
-cursor.execute('UPDATE influencers SET total_earnings = 0')
+def copy_influencers():
+    with sqlite3.connect('users.db') as conn1:
+        cursor = conn1.cursor()
+        cursor.execute('DROP TABLE new_influencers')
+        conn1.commit()
+        conn1.execute('CREATE TABLE IF NOT EXISTS new_influencers (username TEXT NOT NULL, presence TEXT, profile_pic TEXT, request_sent TEXT, request_received TEXT, total_earnings NUMERIC, rating NUMERIC, requested_campaigns INTEGER, assigned_campaigns INTEGER, completed_campaigns INTEGER, "1star" INTEGER, "2star" INTEGER, "3star" INTEGER, "4star" INTEGER, "5star" INTEGER, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE)')
 
+        cursor.execute('INSERT INTO new_influencers(username, presence, profile_pic, request_sent, request_received, total_earnings, rating) SELECT username, presence, profile_pic, request_sent, request_received, total_earnings, rating FROM influencers')
+
+        conn1.commit()
+        cursor.execute('SELECT * FROM new_influencers')
+        print(cursor.fetchall())
+        cursor.execute('SELECT * FROM influencers')
+        print(cursor.fetchall())
+        cursor.execute('DROP TABLE influencers')
+        cursor.execute('ALTER TABLE new_influencers RENAME TO influencers')
+
+cursor.execute('UPDATE influencers SET "3star" = 1 WHERE username = "abc"')
+cursor.execute('SELECT * FROM influencers')
 connect.commit()
 print(cursor.fetchall())
