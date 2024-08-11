@@ -21,7 +21,7 @@ cursor = connect.cursor()
 # cursor.execute('INSERT INTO influencers (username, presence, profic_pic, requests, total_earnings, rating) VALUES(?, ?, ?, ?, ?, ?)', ('test2', "", "", "", 0, 0))
 
 
-def copy():
+def copy_campaigns():
     with sqlite3.connect('users.db') as conn1:
         cursor = conn1.cursor()
         conn1.execute('CREATE TABLE IF NOT EXISTS new_campaigns (id INTEGER NOT NULL PRIMARY KEY, title TEXT, description TEXT, image TEXT, niche TEXT, request_sent TEXT, request_received TEXT, influencer TEXT, sponsor TEXT, budget NUMERIC, completed INT, date TEXT)')
