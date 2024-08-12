@@ -44,6 +44,9 @@
             border-radius: 5px;
             padding: 10px;
             margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .section-title {
@@ -79,10 +82,36 @@
             max-width: 600px;
             width: 100%;
         }
+
+        #viewOverlay {
+            position: fixed;
+            height: 100vh;
+            width: 100vw;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            background-color: rgba(201, 194, 193, 0.8);
+        }
+
+        #viewContainer {
+            display: flex;
+            flex-direction: column;
+            justify-content: start;
+            gap: 20px;
+            border-radius: 20px;
+            padding: 15px 20px;
+            background-color: white;
+            border: 1px solid black;
+            width: 25%;
+        }
     </style>
 </head>
 
 <body>
+    <div id="viewOverlay">
+
+    </div>
     <nav class="text-center">
         <span>Admin's Dashboard</span>
     </nav>
@@ -109,7 +138,12 @@
             <span class="section-title">Campaigns</span>
             {% for campaign in campaigns %}
             <div>
-                <span>{{campaign[0]}} </span>
+                <span style="display: none;">{{campaign[0]}}</span>
+                <span>{{campaign[1]}}</span>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-primary campaignViewButton">View</button>
+                    <button class="btn btn-danger deleteCampaignButton">Delete</button>
+                </div>
             </div>
             {% endfor %}
         </div>
@@ -179,6 +213,42 @@
             }
         }
     });
+
+    document.querySelectorAll('.campaignViewButton').forEach((button) => {
+        button.addEventListener('click', (e) => {
+            fetch('/campaigns/' + e.target.parentElement.previousElementSibling.previousElementSibling.innerHTML, {
+                method: 'GET',
+                credentials: 'same-origin'
+            }).then((response) => {
+                if (response.status == 200) {
+                    response.text().then((data) => {
+                        document.getElementById('viewOverlay').innerHTML = data
+                        document.getElementById('viewOverlay').style.display = 'flex'
+                        hideDialogButtons = document.querySelectorAll('.hideDialog')
+                        hideDialogButtons.forEach((hideDialog) => {
+                            hideDialog.addEventListener('click', () => {
+                                document.getElementById('viewOverlay').style.display = 'none'
+                            })
+                        })
+                    })
+                }
+            })
+        })
+    })
+    document.querySelectorAll('.deleteCampaignButton').forEach((button)=>{
+        button.addEventListener('click', (e)=>{
+            fetch('/campaigns/' + e.target.parentElement.previousElementSibling.previousElementSibling.innerHTML + '/' + '/delete', {
+                method: 'GET',
+                credentials: 'same-origin'
+            }).then((response) => {
+                if (response.status == 200) {
+                    response.text().then((data) => {
+                        console.log("done")
+                    })
+                }
+            })
+        })
+    })
 </script>
 
 </html>

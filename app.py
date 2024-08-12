@@ -634,6 +634,27 @@ def stats():
             spent = cursor.fetchone()[0]
             return render_template('dashboard/stats.html', unassigned_campaigns=total_campaigns-assigned_campaigns, assigned_campaigns=assigned_campaigns, completed_campaigns=completed_campaigns, spent=spent, role=role, data=None)
 
+@app.route('/campaigns/<campaign_id>/delete', methods=['GET'])
+def deleteCampaign(campaign_id):
+    data = utils.checkSessionId(request.cookies.get("sessionId"))
+    role = utils.getRole(request.cookies.get("sessionId"))
+    if data == None:
+        return redirect("/login")
+    if role.lower() != "admin":
+        response = make_response('Access Denied')
+        response.status_code = 403
+        return response
+    with sqlite3.connect('users.db') as users:
+        cursor = users.cursor()
+        cursor.execute('DELETE FROM campaigns WHERE id=?', (campaign_id,))
+        users.commit()
+        cursor.execute('UPDATE influencers SET request_sent = REPLACE(request_sent, ?, "")', (campaign_id,))
+        cursor.execute('UPDATE influencers SET request_received = REPLACE(request_received, ?, "")', (campaign_id,))
+        users.commit()
+        response = make_response("Campaign Deleted")
+        response.status_code = 200
+        return response
+
 @app.route("/logout", methods=['GET'])
 def logout():
     sessionId = request.cookies.get("sessionId")
