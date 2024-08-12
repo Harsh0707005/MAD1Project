@@ -1,11 +1,14 @@
-from flask import Flask, render_template, request, url_for, make_response, redirect
+from flask import Flask, render_template, request, url_for, make_response, redirect, jsonify, send_from_directory
+import os
 import sqlite3
 import json
 from datetime import datetime
 import utils
+from werkzeug.utils import secure_filename
 
 
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = 'uploads/'
 
 connect = sqlite3.connect('users.db')
 connect.execute('PRAGMA foreign_keys = ON;')
@@ -232,11 +235,13 @@ def dashboard():
             requests_campaigns = cursor.fetchall()
             cursor.execute('SELECT * FROM influencers WHERE username=?', (db_username,))
             influencer_data = cursor.fetchone()
+            cursor.execute('SELECT profile_pic FROM influencers WHERE username=?', (db_username,))
+            profile_pic = cursor.fetchone()[0]
             rating = influencer_data[6]
             earnings = influencer_data[5]
 
 
-    return render_template('dashboard/profile.html', role=user_role, username=db_username, active_campaigns=active_campaigns, requests_campaigns=requests_campaigns, rating = rating, earnings = earnings)
+    return render_template('dashboard/profile.html', role=user_role, username=db_username, active_campaigns=active_campaigns, requests_campaigns=requests_campaigns, rating = rating, earnings = earnings, profile_pic = profile_pic)
 
 @app.route("/find", methods=['GET'])
 def find():
@@ -654,6 +659,32 @@ def deleteCampaign(campaign_id):
         response = make_response("Campaign Deleted")
         response.status_code = 200
         return response
+
+@app.route('/influencer/<influencer>/upload', methods=['POST'])
+def uploadProfilePicture(influencer):
+    img = request.files['file']
+
+    if img:
+        if not os.path.exists(app.config['UPLOAD_FOLDER']):
+            os.makedirs(app.config['UPLOAD_FOLDER'])
+        filename = secure_filename(img.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        img.save(file_path)
+        with sqlite3.connect('users.db') as users:
+            cursor = users.cursor()
+            cursor.execute('UPDATE influencers SET profile_pic=? WHERE username=?', (file_path, influencer))
+            users.commit()
+        response = make_response("Profile Picture Uploaded")
+        response.status_code = 200
+        return response
+    else:
+        response = make_response("No file found")
+        response.status_code = 400
+        return response
+
+@app.route('/uploads/<filename>', methods=['GET'])
+def getProfilePicture(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 @app.route("/logout", methods=['GET'])
 def logout():

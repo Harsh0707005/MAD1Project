@@ -52,6 +52,6 @@ def copy_influencers():
         cursor.execute('DROP TABLE influencers')
         cursor.execute('ALTER TABLE new_influencers RENAME TO influencers')
 
-cursor.execute('SELECT * FROM campaigns WHERE completed=0')
+cursor.execute('SELECT * FROM influencers')
 connect.commit()
 print(cursor.fetchall())
