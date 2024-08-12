@@ -52,7 +52,6 @@ def copy_influencers():
         cursor.execute('DROP TABLE influencers')
         cursor.execute('ALTER TABLE new_influencers RENAME TO influencers')
 
-cursor.execute('UPDATE influencers SET "3star" = 1 WHERE username = "abc"')
-cursor.execute('SELECT * FROM influencers')
+cursor.execute('INSERT INTO users (username, password, role) VALUES(?,?,?)', ('admin', 'admin', 'admin'))
 connect.commit()
 print(cursor.fetchall())

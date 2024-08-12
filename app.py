@@ -22,8 +22,10 @@ def login():
             cursor = users.cursor()
             cursor.execute('SELECT * FROM users WHERE sessionId=?', (request.cookies.get("sessionId"),))
 
-            # print(cursor.fetchone())
-            if cursor.fetchone():
+            data = cursor.fetchone()
+            if data:
+                if data[2] == "admin":
+                    return redirect("/adminPanel")
                 return redirect("/dashboard")
             else:
                 response = make_response(render_template('login.html', role="User"))
@@ -63,33 +65,72 @@ def login():
 
 @app.route("/login/admin", methods=['GET', 'POST'])
 def admin():
-    if request.method == "POST":
-        username = request.form['username'].strip()
-        password = request.form['password'].strip()
-
-        if username == "" or password == "":
-            return render_template('login.html', role="Admin", errMessage = "Please fill in all fields!", usernameInput = username)
-
+    sessionId = request.cookies.get("sessionId")
+    if sessionId != None and sessionId != "":
         with sqlite3.connect('users.db') as users:
             cursor = users.cursor()
-
-            cursor.execute('SELECT * FROM users where username = ?', (username,))
-
-            db_res = cursor.fetchone()
-
-            if db_res:
-                if db_res[2] == "admin":
-                    if password == db_res[1]:
-                        return render_template('login.html', role="Admin" , errMessage = "Login Successful!")
-                    else:
-                        return render_template('login.html', role="Admin" , usernameInput = username, errMessage = "Invalid Password!")
-                else:
-                    return render_template('login.html', role="Admin" , errMessage = "No Admin Users Found!")
+            cursor.execute('SELECT * FROM users WHERE sessionId=?', (sessionId,))
+            db_result = cursor.fetchone()
+            if db_result != [] and db_result != None:
+                response = make_response(redirect('/adminPanel'))
+                return response
             else:
-                return render_template('login.html', role="Admin" , errMessage = "User doesn't exist!")
+                response = make_response(render_template('login.html', role="Admin"))
+                response.set_cookie("sessionId", "", max_age=0)
+                return response
+    else:
+        username = request.form.get('username')
+        password = request.form.get('password')
+        if username == None or password == None:
+            return render_template('login.html', role="Admin")
+        with sqlite3.connect('users.db') as users:
+            cursor = users.cursor()
+            cursor.execute('SELECT * FROM users WHERE username=? AND role=?', (username, 'admin'))
+            db_result = cursor.fetchone()
+            if db_result == None:
+                return render_template('login.html', role="Admin", errMessage = "User doesn't exist!")
+            elif db_result[1] == password:
+                sessionId = utils.generateRandomNo(30)
+                cursor.execute('UPDATE users SET sessionId=? WHERE username=?', (sessionId, username))
+                users.commit()
+                response = make_response(redirect('/adminPanel'))
+                response.set_cookie("sessionId", sessionId, max_age=(60*60*24*7))
+                return response
+            else:
+                return render_template('login.html', role="Admin", errMessage = "Invalid Password!")
 
-    return render_template('login.html', role="Admin")
+@app.route("/adminPanel", methods=['GET'])
+def adminPanel():
+    sessionId = request.cookies.get("sessionId")
+    if sessionId == None or sessionId == "":
+        return redirect("/login/admin")
+    else:
+        with sqlite3.connect('users.db') as users:
+            cursor = users.cursor()
+            cursor.execute('SELECT * FROM users WHERE sessionId=?', (sessionId,))
+            db_result = cursor.fetchone()
+            if db_result == [] or db_result == None or db_result[2] != "admin":
+                response = make_response(redirect("/login"))
+                response.set_cookie("sessionId", "", max_age=0)
+                return response
+    
+    with sqlite3.connect('users.db') as users:
+        cursor = users.cursor()
+        cursor.execute('SELECT * FROM influencers');
+        influencers = cursor.fetchall()
+        cursor.execute('SELECT * FROM sponsors');
+        sponsors = cursor.fetchall()
+        cursor.execute('SELECT * FROM campaigns');
+        campaigns = cursor.fetchall()
+        cursor.execute('SELECT * FROM campaigns WHERE completed=1');
+        completed_campaigns = cursor.fetchall()
+        cursor.execute('SELECT * FROM campaigns WHERE influencer IS NOT NULL');
+        assigned_campaigns = cursor.fetchall()
+        cursor.execute('SELECT * FROM campaigns WHERE influencer IS NULL');
+        unassigned_campaigns = cursor.fetchall()
+        return render_template('adminPanel.html', influencers=influencers, sponsors=sponsors, campaigns=campaigns, completed_campaigns=completed_campaigns, assigned_campaigns=assigned_campaigns, unassigned_campaigns=unassigned_campaigns)
 
+    return render_template('adminPanel.html')
 
 @app.route("/register/sponsor", methods=["GET", "POST"])
 def registerSponsor():
