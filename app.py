@@ -228,6 +228,7 @@ def dashboard():
             active_campaigns = cursor.fetchall()
             rating = None
             earnings = None
+            profile_pic = None
         elif user_role == 'Influencer':
             cursor.execute('SELECT * FROM campaigns WHERE influencer=? AND completed!=1', (db_username,))
             active_campaigns = cursor.fetchall()
@@ -512,14 +513,14 @@ def create_campaign():
     role = data[2].title()
     campaign_title = request.form['title']
     campaign_description = request.form['description']
-    campaign_image = request.form['image']
+    # campaign_image = request.form['image']
     campaign_niche = request.form['niche']
     campaign_budget = request.form['budget']
     datenow = datetime.now()
     with sqlite3.connect('users.db')  as users:
         cursor = users.cursor()
         # request_sent TEXT, request_received TEXT, influencer TEXT, sponsor TEXT, budget NUMERIC, date TEXT
-        cursor.execute('INSERT INTO campaigns (title, description, image, niche, request_sent, request_received, influencer, sponsor, budget, completed, date) values (?, ?, ?, ?, NULL, NULL, NULL, ?, ?, ?, ?)', (campaign_title, campaign_description, campaign_image, campaign_niche, username, campaign_budget, 0, datenow))
+        cursor.execute('INSERT INTO campaigns (title, description, niche, request_sent, request_received, influencer, sponsor, budget, completed, date) values (?, ?, ?, NULL, NULL, NULL, ?, ?, ?, ?)', (campaign_title, campaign_description, campaign_niche, username, campaign_budget, 0, datenow))
         try:
             users.commit()
             creation_status = 201

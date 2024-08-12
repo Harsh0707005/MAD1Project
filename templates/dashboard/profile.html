@@ -105,38 +105,38 @@
                 <div class="campaigns">
 
                     {% for campaign in requests_campaigns %}
-                    {% if role=="Sponsor" %}
-                    {% for inf in campaign[6].split(',') %}
-                    <div class="campaign">
-                        <div>
-                            <span style="display: none;">{{campaign[0]}}</span>
-                            <span>{{campaign[1]}}</span>
-                            <span>|</span>
-                            <span>{{inf}}</span>
-                        </div>
-                        <div>
-                            <span class="viewCampaignButton noselect">View</span>
-                            <span class="accept noselect">Accept</span>
-                            <span class="reject noselect">Reject</span>
-                        </div>
-                    </div>
-                    {% endfor %}
-                    {% elif role=="Influencer" %}
-                    <div class="campaign">
-                        <div>
-                            <span style="display: none;">{{campaign[0]}}</span>
-                            <span>{{campaign[1]}}</span>
-                            <span>|</span>
-                            <span>{{campaign[8]}}</span>
-                        </div>
-                        <div>
-                            <span class="viewCampaignButton noselect">View</span>
-                            <span class="accept noselect">Accept</span>
-                            <span class="reject noselect">Reject</span>
-                        </div>
+                        {% if role=="Sponsor" %}
+                            {% for inf in campaign[6].split(',') %}
+                                <div class="campaign">
+                                    <div>
+                                        <span style="display: none;">{{campaign[0]}}</span>
+                                        <span>{{campaign[1]}}</span>
+                                        <span>|</span>
+                                        <span>{{inf}}</span>
+                                    </div>
+                                    <div>
+                                        <span class="viewCampaignButton noselect">View</span>
+                                        <span class="accept noselect">Accept</span>
+                                        <span class="reject noselect">Reject</span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% elif role=="Influencer" %}
+                            <div class="campaign">
+                                <div>
+                                    <span style="display: none;">{{campaign[0]}}</span>
+                                    <span>{{campaign[1]}}</span>
+                                    <span>|</span>
+                                    <span>{{campaign[8]}}</span>
+                                </div>
+                                <div>
+                                    <span class="viewCampaignButton noselect">View</span>
+                                    <span class="accept noselect">Accept</span>
+                                    <span class="reject noselect">Reject</span>
+                                </div>
+                            </div>
                         {% endif %}
-                        {% endfor %}
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -314,11 +314,11 @@
                         }, 1500);
                     } else {
                         document.querySelector('.toast').classList.add('text-bg-danger');
-                    document.querySelector('.toast').classList.add('show');
-                    document.querySelector('.toast-body').innerHTML = "File upload failed";
-                    setTimeout(() => {
-                        document.querySelector('.toast').classList.remove('show');
-                    }, 3000);
+                        document.querySelector('.toast').classList.add('show');
+                        document.querySelector('.toast-body').innerHTML = "File upload failed";
+                        setTimeout(() => {
+                            document.querySelector('.toast').classList.remove('show');
+                        }, 3000);
                     }
                 });
             }
