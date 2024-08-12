@@ -1,23 +1,50 @@
 nav {
     display: flex;
     flex-direction: row;
-    /* align-items: center; */
     justify-content: space-between;
-    padding: 10px;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #ffffff;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+}
+
+nav span {
+    font-size: 20px;
+    font-weight: bold;
 }
 
 nav ul {
     list-style-type: none;
     display: flex;
     flex-direction: row;
+    gap: 15px;
+    margin: 0;
+    padding: 0;
 }
 
 nav ul li {
     cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+nav ul li:hover {
+    background-color: #0056b3;
+    color: #ffffff;
+}
+
+nav ul a {
+    text-decoration: none;
+    color: inherit;
 }
 
 .noselect {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
     user-select: none;
 }
