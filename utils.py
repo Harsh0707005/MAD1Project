@@ -23,9 +23,9 @@ def searchCampaigns(query):
     with sqlite3.connect('users.db') as users:
         cursor = users.cursor()
         if query:
-            cursor.execute('SELECT * FROM campaigns WHERE title LIKE ? OR description LIKE ? OR niche LIKE ? ORDER BY date DESC', (query, query, query))
+            cursor.execute('SELECT * FROM campaigns WHERE (title LIKE ? OR description LIKE ? OR niche LIKE ?) AND completed = 0 ORDER BY date DESC', (query, query, query))
         else:
-            cursor.execute('SELECT * FROM campaigns')
+            cursor.execute('SELECT * FROM campaigns WHERE completed = 0')
         data = cursor.fetchall()
         return data
 

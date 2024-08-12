@@ -255,7 +255,7 @@ def find_campaigns():
     with sqlite3.connect('users.db') as users:
         cursor = users.cursor()
         if search_query == False:
-            cursor.execute('SELECT * FROM campaigns ORDER BY date DESC')
+            cursor.execute('SELECT * FROM campaigns WHERE completed=0 ORDER BY date DESC')
             campaigns = cursor.fetchall()
         else:
             campaigns = utils.searchCampaigns(search_query)

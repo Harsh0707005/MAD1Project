@@ -1,10 +1,14 @@
+{% if data|length !=0%}
+<span>{{resultFor|title}}</span>
+{% endif %}
 {% for chunk in data %}
 <div class="dataChunk">
+    <span style="display: none;">{{chunk[0]}}</span>
     <span>{{chunk[1] if resultFor=="campaigns" else chunk[0]}}</span>
     <div>
-        <span>View</span>
+        <span class="viewCampaignButton">View</span>
         {% if (resultFor=='campaigns' and role=='Influencer') or (resultFor=='influencers' and role=='Sponsor') %}
-            <span class="request">Request</span>
+        <span class="request">Request</span>
         {% endif %}
     </div>
 </div>

@@ -28,12 +28,13 @@
             <a href="/find/influencers"><button>Influencers</button></a>
         </div>
         <div id="resultData">
+            <span>{{resultFor|title}}</span>
             {% for chunk in data %}
             <div class="dataChunk">
                 <span style="display: none;">{{chunk[0] if resultFor=="campaigns"}}</span>
                 <span>{{chunk[1] if resultFor=="campaigns" else chunk[0]}}</span>
                 <div>
-                    <span>View</span>
+                    <span class="viewCampaignButton">View</span>
                     {% if (resultFor=='campaigns' and role=='Influencer') or (resultFor=='influencers' and
                     role=='Sponsor') %}
                     <span class="request">Request</span>
@@ -53,7 +54,7 @@
             method: 'POST',
             credentials: 'same-origin'
         }).then(response => response.text()).then(data => {
-            if (!data) {
+            if (data.length ==1) {
                 data = "No results found"
             }
             document.getElementById('resultData').innerHTML = data
@@ -107,6 +108,25 @@
                     })
                 })
             }
+        }
+        if (e.target.classList.contains('viewCampaignButton')) {
+            fetch('/campaigns/' + e.target.parentElement.previousElementSibling.previousElementSibling.innerHTML, {
+                method: 'GET',
+                credentials: 'same-origin'
+            }).then((response) => {
+                if (response.status == 200) {
+                    response.text().then((data) => {
+                        document.getElementById('viewOverlay').innerHTML = data
+                        document.getElementById('viewOverlay').style.display = 'flex'
+                        hideDialogButtons = document.querySelectorAll('.hideDialog')
+                        hideDialogButtons.forEach((hideDialog) => {
+                            hideDialog.addEventListener('click', () => {
+                                document.getElementById('viewOverlay').style.display = 'none'
+                            })
+                        })
+                    })
+                }
+            })
         }
     })
 </script>
