@@ -32,7 +32,7 @@
     <div id="profileContainer">
         {% if role == 'Influencer' %}
         <div id="left">
-            <img id="profilePicture" src="{{profile_pic}}" alt="">
+            <img id="profilePicture" src="{{profile_pic if profile_pic !='' else 'static/assets/placeholderProfilePic.png'}}" alt="">
             <input type="file" id="fileInput" style="display: none;" accept="image/*">
             <span>Rating: {{rating}}/5</span>
             <span>Total Earnings: {{earnings}}</span>
@@ -256,7 +256,6 @@
                         document.querySelector('.toast-body').innerHTML = "Campaign marked as complete"
                         setTimeout(() => {
                             document.querySelector('.toast').classList.remove('show')
-                            window.location.reload()
                         }, 3000)
                         document.getElementById('viewOverlay').innerHTML = data
                         document.getElementById('viewOverlay').style.display = 'flex'

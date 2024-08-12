@@ -410,8 +410,8 @@ def accept_influencer(influencer, campaign_id):
                 cursor.execute('UPDATE campaigns SET request_sent=NULL WHERE id=?', (campaign_id,))
                 cursor.execute('UPDATE campaigns SET influencer=? WHERE id=?', (username, campaign_id))
                 cursor.execute('SELECT request_received FROM influencers WHERE username=?', (username,))
-                cursor.execute('UPDATE influencers SET assigned_campaigns=assigned_campaigns+1 WHERE username=?', (username,))
                 request_received = cursor.fetchone()[0].split(",")
+                cursor.execute('UPDATE influencers SET assigned_campaigns=assigned_campaigns+1 WHERE username=?', (username,))
                 if request_received != (None,) and (campaign_id in request_received):
                     request_received.remove(campaign_id)
                     new_request_received = ",".join(request_received)
@@ -427,8 +427,8 @@ def accept_influencer(influencer, campaign_id):
             cursor.execute('UPDATE campaigns SET request_received=NULL WHERE id=?', (campaign_id,))
             cursor.execute('UPDATE campaigns SET influencer=? WHERE id=?', (influencer, campaign_id))
             cursor.execute('SELECT request_sent FROM influencers WHERE username=?', (influencer,))
-            cursor.execute('UPDATE influencers SET assigned_campaigns=assigned_campaigns+1 WHERE username=?', (influencer,))
             request_sent = cursor.fetchone()[0].split(",")
+            cursor.execute('UPDATE influencers SET assigned_campaigns=assigned_campaigns+1 WHERE username=?', (influencer,))
             if request_sent != (None,) and (campaign_id in request_sent):
                 request_sent.remove(campaign_id)
                 new_request_sent = ",".join(request_sent)
