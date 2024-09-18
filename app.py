@@ -14,7 +14,7 @@ connect = sqlite3.connect('users.db')
 connect.execute('PRAGMA foreign_keys = ON;')
 connect.execute('CREATE TABLE IF NOT EXISTS users (username TEXT NOT NULL PRIMARY KEY, password TEXT NOT NULL, role TEXT NOT NULL, sessionId TEXT)')
 connect.execute('CREATE TABLE IF NOT EXISTS influencers (username TEXT NOT NULL, presence TEXT, profile_pic TEXT, request_sent TEXT, request_received TEXT, total_earnings NUMERIC, rating NUMERIC, requested_campaigns INTEGER, assigned_campaigns INTEGER, completed_campaigns INTEGER, "1star" INTEGER, "2star" INTEGER, "3star" INTEGER, "4star" INTEGER, "5star" INTEGER, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE)')
-connect.execute('CREATE TABLE IF NOT EXISTS sponsors (username TEXT NOT NULL, industry TEXT, requests TEXT, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE)')
+connect.execute('CREATE TABLE IF NOT EXISTS sponsors (username TEXT NOT NULL, industry TEXT, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE)')
 connect.execute('CREATE TABLE IF NOT EXISTS campaigns (id INTEGER NOT NULL PRIMARY KEY, title TEXT, description TEXT, image TEXT, niche TEXT, request_sent TEXT, request_received TEXT, influencer TEXT, sponsor TEXT, budget NUMERIC, completed INT, date TEXT)')
 
 @app.route("/", methods=["GET", "POST"])
@@ -162,8 +162,7 @@ def registerSponsor():
                 users.commit()
                 cursor.execute('INSERT INTO sponsors(username, industry, requests) VALUES(?, ?, ?)', (username, "", ""))
                 users.commit()
-
-                return cursor.execute("SELECT * FROM users").fetchall()
+                return redirect("/login")
 
     return render_template("register.html", role="Sponsor")
 
@@ -193,7 +192,7 @@ def registerInfluencer():
                 users.commit()
                 # cursor.execute('INSERT INTO influencers(username, presence, profic_pic, requests, total_earnings, rating) VALUES(?, ?, ?, ?, ?, ?)', (username, "", "", "", 0, 0))
                 cursor.execute('INSERT INTO influencers(username, presence, profile_pic, request_sent, request_received, total_earnings, rating, requested_campaigns, assigned_campaigns, completed_campaigns, "1star", "2star", "3star", "4star", "5star") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (username, "", "", "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
-                return cursor.execute("SELECT * FROM users").fetchall()
+                return redirect("/login")
 
     return render_template("register.html", role="Influencer")
 

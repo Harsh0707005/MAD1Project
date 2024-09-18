@@ -52,6 +52,6 @@ def copy_influencers():
         cursor.execute('DROP TABLE influencers')
         cursor.execute('ALTER TABLE new_influencers RENAME TO influencers')
 
-cursor.execute('SELECT * FROM influencers')
+cursor.execute('PRAGMA table_info(sponsors)')
 connect.commit()
 print(cursor.fetchall())
